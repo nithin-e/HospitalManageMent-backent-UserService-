@@ -12,7 +12,7 @@ export default class FetchController implements IfectingAllDoctorsController{
     fetchAllDoctors = async (call: any, callback: any) => {
         try {
             const doctorsResponse = await this.FetchDoctorService.fectingDoctor_Data();
-            const doctors = doctorsResponse.data; // Access the data property
+            const doctors = doctorsResponse.data; 
             
             const response = {
                 doctors: doctors.map((doctor: any) => ({
@@ -33,6 +33,8 @@ export default class FetchController implements IfectingAllDoctorsController{
                 }))
             };
 
+            console.log('check the result for fecting doctors',response);
+            
             callback(null, response);
         } catch (error) {
             console.error('Error fetching doctors:', error);

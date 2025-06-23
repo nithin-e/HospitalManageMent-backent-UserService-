@@ -106,4 +106,27 @@ export default class LoginService implements IloginInerfaceService{
   };
 
 
+  changingUser_Information = async (userData: { 
+    email: string; 
+    name: string; 
+    phoneNumber: string 
+}) => {
+    try {
+        const response = await this.loginRepo.changing_User___Information({
+            email: userData.email,
+            name: userData.name,
+            phoneNumber: userData.phoneNumber
+        });
+        
+        console.log('Response from repository:', response);
+        return response;
+        
+    } catch (error) {
+        console.error("Error in change user information service:", error);
+        throw error;
+    }
+};
+
+
+
   }

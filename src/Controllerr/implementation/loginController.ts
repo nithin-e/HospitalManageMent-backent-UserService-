@@ -84,4 +84,29 @@ export default class LoginController implements IloginController {
         }
     };
 
+
+    ChangingUserInfo = async (call: any, callback: any) => {
+        try {
+            const { email, name, phoneNumber } = call.request;
+    
+            const response = await this.LoginService.changingUser_Information({
+                email: email,
+                name: name,
+                phoneNumber: phoneNumber
+            });
+    
+            callback(null, {
+                success: response.success
+            });
+    
+        } catch (error) {
+            console.log('Error in changing user info:', error);
+            const grpcError = {
+                code: grpc.status.INTERNAL,
+                message: (error as Error).message,
+            };
+            callback(grpcError, null);
+        }
+    }
+
 }

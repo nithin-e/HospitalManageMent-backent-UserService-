@@ -3,6 +3,16 @@ import { IfectingAllUsersRepository } from '../interface/fectingAllUsersRepoInte
 
 
 
+
+interface SearchParams {
+  searchQuery: string;
+  sortBy: string;
+  sortDirection: string;
+  role: string;
+  page: number;
+  limit: number;
+}
+
 export default class FetchAllDataRepository implements IfectingAllUsersRepository{
     
   
@@ -50,6 +60,79 @@ export default class FetchAllDataRepository implements IfectingAllUsersRepositor
         throw error;
       }
   }
+
+  
+  
+  searchUserDebounce = async (params: SearchParams) => {
+      try {
+        const { searchQuery, sortBy, sortDirection, role, page, limit } = params;
+        const query: any = {};
+        
+        console.log('..inside the repo check the params..', params);
+  
+        // Build search query
+        if (searchQuery && searchQuery.trim()) {
+          query.$or = [
+            { name: { $regex: searchQuery, $options: 'i' } },
+            { email: { $regex: searchQuery, $options: 'i' } }
+          ];
+        }
+  
+        // Add role filter
+        if (role && role.trim()) {
+          query.role = role;
+        }
+  
+        // Calculate pagination
+        const skip = (page - 1) * limit;
+  
+        // Build sort object
+        const sortObj: any = {};
+        if (sortBy) {
+          sortObj[sortBy] = sortDirection === 'asc' ? 1 : -1;
+        }
+  
+        // Execute queries
+        const [users, totalCount, activeCount, blockedCount] = await Promise.all([
+          User.find(query)
+            .sort(sortObj)
+            .skip(skip)
+            .limit(limit)
+            .select('name email isActive role createdAt')
+            .lean(),
+          User.countDocuments(query),
+          User.countDocuments({ ...query, isActive: true }),
+          User.countDocuments({ ...query, isActive: false })
+        ]);
+  
+        const mappedUsers = users.map(user => ({
+          id: user._id.toString(),
+          name: user.name || '',
+          email: user.email || '',
+          profilePicture: '',
+          isActive: user.isActive || false,
+          role: user.role || 'user',
+          createdAt: user.createdAt ? user.createdAt.toISOString() : '',
+          updatedAt: '',
+          lastLoginAt: ''
+        }));
+  
+        return {
+          users: mappedUsers,
+          totalCount,
+          activeCount,
+          blockedCount
+        };
+  
+      } catch (error) {
+        console.error("Error in debounced search repository:", error);
+        throw error;
+      }
+  };
+
+
+  
+  
 
 
   }

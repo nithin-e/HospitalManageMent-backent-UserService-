@@ -3,7 +3,7 @@ import { IfectingAllUsersController } from '../interFaces/fectingAllUsersInterfa
 import FectingAllUsersService from '../../Servicess/implementation/fectingAllUsersService';
 import { Document, Types } from 'mongoose'; 
 
-// MongoDB Document interface that represents what comes from the database
+
 interface UserDocument extends Document {
   name: string;
   email: string;
@@ -98,4 +98,47 @@ export default class fetchController implements IfectingAllUsersController {
       callback(grpcError, null);
     }
 }
+
+
+searchUserDebounce = async (call: any, callback: any) => {
+  try {
+    // Extract all fields from the SearchUsersRequest
+    const { 
+      searchQuery = '', 
+      sortBy = 'createdAt',
+      sortDirection = 'desc',
+      role = '',
+      page = 1,
+      limit = 50
+    } = call.request;
+
+    console.log('Full request data:', call.request);
+    console.log('Search query:', searchQuery);
+    console.log('Sort by:', sortBy);
+    console.log('Sort direction:', sortDirection);
+    console.log('Role filter:', role);
+    console.log('Page:', page);
+    console.log('Limit:', limit);
+    
+    // Pass all parameters to the service
+    const response = await this.FectingAllUsersService.searchUserDebounce({
+      searchQuery,
+      sortBy,
+      sortDirection,
+      role,
+      page,
+      limit
+    });
+    
+    callback(null, response);
+  } catch (error) {
+    console.log('Error in debounced search:', error);
+    const grpcError = {
+      code: grpc.status.INTERNAL,
+      message: (error as Error).message,
+    };
+    callback(grpcError, null);
+  }
+};
+
 }

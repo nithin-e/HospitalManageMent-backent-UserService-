@@ -2,7 +2,17 @@ import { IfectingAllUsersService } from "../interface/fectingAllUsersServiceInte
 import FetchAllDataRepository from "../../repositoriess/implementation/fectingAllUsersRepo"
 
 
-export default class fetchDataUseCase  implements IfectingAllUsersService{
+interface SearchParams {
+  searchQuery: string;
+  sortBy: string;
+  sortDirection: string;
+  role: string;
+  page: number;
+  limit: number;
+}
+
+
+export default class fetchDataService  implements IfectingAllUsersService{
     private fetchAllDataRepo:FetchAllDataRepository;
 constructor(fetchAllDataRepo:FetchAllDataRepository){
      this.fetchAllDataRepo=fetchAllDataRepo;
@@ -29,5 +39,27 @@ fecting_SingleUser = async (email: string) => {
       throw error;
     }
 }
+
+
+
+
+searchUserDebounce = async (params: SearchParams) => {
+  try {
+    const response = await this.fetchAllDataRepo.searchUserDebounce(params);
+    return {
+      users: response.users,
+      totalCount: response.totalCount,
+      activeCount: response.activeCount,
+      blockedCount: response.blockedCount,
+      success: true,
+      message: 'Search completed'
+    };
+  } catch (error) {
+    console.error("Error in debounced search service:", error);
+    throw error;
+  }
+};
+
+
 
 }

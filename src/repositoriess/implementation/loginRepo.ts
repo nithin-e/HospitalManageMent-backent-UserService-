@@ -142,4 +142,39 @@ export default class loginRepository implements IloginInterFace{
     }
 }
 
+
+changing_User___Information = async (userData: {
+  email: string;
+  name: string;
+  phoneNumber: string;
+}): Promise<UserResponse> => {
+  try {
+      console.log('Repository function called with:', userData);
+      
+      // Find and update user by email
+      const updatedUser = await User.findOneAndUpdate(
+          { email: userData.email },
+          { 
+              name: userData.name,
+              phone_number: userData.phoneNumber
+          },
+          { new: true }
+      );
+
+      if (!updatedUser) {
+          return {
+              success: false
+          };
+      }
+      
+      return {
+          success: true
+      };
+      
+  } catch (error) {
+      console.error("Error in change user information repository:", error);
+      throw error;
+  }
+}
+
 }
