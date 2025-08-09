@@ -1,4 +1,5 @@
 export interface IUserBlockAndUnblockService{
-    BlockingUser(call:any,callback:any):Promise<any>;
-    unBlockingUser(call:any,callback:any):Promise<any>;
+    BlockingUser(userId:string):Promise<boolean>;
+    unBlockingUser(userId:string):Promise<boolean>;
+    BlockingDoctor(email:string):Promise<boolean>;
 }

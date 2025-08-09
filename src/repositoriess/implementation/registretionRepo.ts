@@ -5,15 +5,15 @@ import { IRegistretionInterFaceRepo } from "../interface/registretionRepoInterFa
 
 export default class userRepository implements IRegistretionInterFaceRepo{
     saveUser = async (userData: registration): Promise<UserResponse> => {
-        console.log('..inside the repo...', userData);
+        
         
         try {
            
             
-            // Check if this is the first user by counting existing users
+            
             const userCount = await User.countDocuments();
             
-            // Check if user with this email already exists
+  
             const existingUser = await User.findOne({ email: userData.email });
             
             // If user exists and this is a Google login (has googleId)
@@ -27,8 +27,7 @@ export default class userRepository implements IRegistretionInterFaceRepo{
                     console.log("Updated existing user with Google ID:", updatedUser);
                     return updatedUser as UserResponse;
                 }
-                
-                // User already has GoogleId, just return the existing user
+             
                 return existingUser as UserResponse;
             }
             
@@ -87,18 +86,22 @@ export default class userRepository implements IRegistretionInterFaceRepo{
     };
 
 
-    checkUser=async (email:string,phoneNumber:any)=>{
-     try {
-        const CheckingUser = await User.findOne({ email })
-        console.log("userDetailWithEmail", CheckingUser)
-        if (CheckingUser) {
-            return CheckingUser;
-          }
-        
-     } catch (error) {
-        console.log('..error aahnu mone...',error);
-        
-        return (error as Error).message;
-     }
+    checkUser = async (email: string, phoneNumber: string): Promise<UserResponse> => {
+        try {
+            const CheckingUser = await User.findOne({ email })
+            console.log("userDetailWithEmail", CheckingUser)
+            
+            if (CheckingUser) {
+                return { success: false, message: 'user already registered with this email' };
+            }
+            
+            console.log('inside the repo with no user')
+           
+            return { success: true, message: 'user not registered' };
+            
+        } catch (error) {
+            console.log('..error aahnu mone...', error);
+            throw new Error('Error checking user registration')
+        }
     }
 }

@@ -1,5 +1,9 @@
 
-export interface IapplyDoctorService{
-    apply_For_doctor(call:any,callback:any):Promise<void>;
-    UpdateDctorStatus__AfterAdminApprove(call:any,callback:any):Promise<void>;
-}
+import { DoctorApplicationResponse, DoctorFormData, StatusUpdateResponse } from "../../allTypes/types";
+  
+  export interface IapplyDoctorService {
+    
+    apply_For_doctor(doctorData: DoctorFormData): Promise<DoctorApplicationResponse>;
+
+    UpdateDctorStatus__AfterAdminApprove(email: string): Promise<StatusUpdateResponse>;
+  }

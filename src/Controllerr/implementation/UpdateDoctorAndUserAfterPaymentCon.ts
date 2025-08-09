@@ -1,17 +1,23 @@
-// Controller
+import { ServerUnaryCall, sendUnaryData, ServiceError } from '@grpc/grpc-js';
 import * as grpc from '@grpc/grpc-js';
-import { IUpdateDoctorAndUserAfterPaymentController } from '../interFaces/UpdateDoctorAndUserAfterPaymentInterFace';
-import UpdateDoctorAndUserAfterPaymentService from '../../Servicess/implementation/UpdateDoctorAndUserAfterPaymentService'
+import { UserResponse } from '../../entities/user_interface';
+import { IUpdateDoctorAndUserAfterPaymentService } from '../../Servicess/interface/UpdateDoctorAndUserAfterPaymentInterFace';
 
-export default class UpdateDoctorAndUserAfterPaymentController implements IUpdateDoctorAndUserAfterPaymentController {
-  private UpdateDoctorAndUserAfterPaymentService: UpdateDoctorAndUserAfterPaymentService;
 
-  constructor(UpdateDoctorAndUserAfterPaymentService:UpdateDoctorAndUserAfterPaymentService) {
+ export interface UpdateDoctor {
+  email: string;
+}
+
+
+export default class UpdateDoctorAndUserAfterPaymentController  {
+  private UpdateDoctorAndUserAfterPaymentService: IUpdateDoctorAndUserAfterPaymentService;
+
+  constructor(UpdateDoctorAndUserAfterPaymentService:IUpdateDoctorAndUserAfterPaymentService) {
 
     this.UpdateDoctorAndUserAfterPaymentService = UpdateDoctorAndUserAfterPaymentService;
   }
 
-  UpdateDoctorAndUserAfterPayment = async (call: any, callback: any) => {
+  UpdateDoctorAndUserAfterPayment = async (call: ServerUnaryCall<UpdateDoctor,UserResponse>, callback: sendUnaryData<UserResponse>) => {
     try {
       const { email } = call.request;
       const response = await this.UpdateDoctorAndUserAfterPaymentService.updateDoctorAndUserAfterPayment(email);
@@ -27,7 +33,7 @@ export default class UpdateDoctorAndUserAfterPaymentController implements IUpdat
   };
 
 
-  DeleteDoctorAfter__AdminReject = async (call: any, callback: any) => {
+  DeleteDoctorAfter__AdminReject = async (call: ServerUnaryCall<UpdateDoctor,UserResponse>, callback: sendUnaryData<UserResponse>) => {
     try {
       const { email } = call.request;
       const response = await this.UpdateDoctorAndUserAfterPaymentService.DeleteDoctor_AfterAdminReject(email);

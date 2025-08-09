@@ -1,53 +1,104 @@
-import { IloginController } from "../interFaces/loginInterFace";
-import LoginService from "../../Servicess/implementation/loginService";
+import { ServerUnaryCall, sendUnaryData, ServiceError } from '@grpc/grpc-js';
 import * as grpc from '@grpc/grpc-js';
+import { LoginUserRequest } from "../../allTypes/types";
+import { LoginResponse, UserResponse } from "../../entities/user_interface";
+import { IloginInerfaceService } from "../../Servicess/interface/loginServiceInterFace";
 
-export default class LoginController implements IloginController {
-    private LoginService: LoginService;
+export interface LoginUserResponse {
+    message?: string;
+    user?: UserResponse;
+    access_token?: string;
+    refresh_token?: string;
+}
 
-    constructor(LoginService:LoginService) {
-        this.LoginService =  LoginService;
+export interface forgetData{
+email:string;
+newPassword?:string | null;
+password:string;
+name:string
+phoneNumber:string
+}
+
+
+
+export default class LoginController  {
+    private readonly LoginService: IloginInerfaceService;
+
+    constructor(LoginService: IloginInerfaceService) {
+        this.LoginService = LoginService;
     }
 
-    login = async (call: any, callback: any) => {
+    login = async (
+        call: ServerUnaryCall<LoginUserRequest, LoginUserResponse>,
+        callback: sendUnaryData<LoginUserResponse>
+    ): Promise<void> => {
         try {
-            console.log('puthya console 1', call.request);
-            const { email, password, googleId, name } = call.request;
+            const { email, password } = call.request;
             
-            const loginData = { email, password, googleId, name };
+            const loginData: LoginUserRequest = {
+                email,
+                password
+            };
     
-            const response = await this.LoginService.user_login(loginData);
+            const response = await this.LoginService.user_login(loginData) as LoginResponse;
     
-            if (response.message === 'Invalid credentials') {
-                callback(null, { message: response.message });
-            } else {
-                const registerResponse = {
-                    user: response.user,
-                    access_token: response.accessToken,   // Changed to snake_case
-                    refresh_token: response.refreshToken, // Changed to snake_case
+            console.log('Login successful:', response);
+    
+            if (!response.success || !response || response.message === 'Invalid credentials') {
+                console.log('Login failed:', response);
+                const errorResponse: LoginUserResponse = {
+                    message: response.message || 'Login failed'
                 };
-    
-               
-                callback(null, registerResponse);
+                callback(null, errorResponse);
+                return;
             }
+    
+            // Fix: Access properties directly from response, not response.data
+            const successResponse: LoginUserResponse = {
+                user: {
+                    _id: response.user._id,
+                    email: response.user.email,
+                    name: response.user.name || '',
+                    role: response.user.role,
+                    phoneNumber: response.user.phoneNumber || '',
+                    googleId: response.user.googleId || '',
+                    createdAt: response.user.createdAt || new Date(),
+                    isActive:response.user.isActive
+                },
+                access_token: response.accessToken,  
+                refresh_token: response.refreshToken  
+            };
+    
+            callback(null, successResponse);
         } catch (error) {
-            console.log('mmmmm', error);
-            const grpcError = {
+            console.error('Controller error:', error);
+            const grpcError: ServiceError = {
                 code: grpc.status.INTERNAL,
-                message: (error as Error).message,
+                message: error instanceof Error ? error.message : 'Unknown error',
+                name: 'Internal Error',
+                details: '',
+                metadata: new grpc.Metadata()
             };
             callback(grpcError, null);
         }
     };
 
-    
-    ForgetPass = async (call: any, callback: any) => {
+
+    ForgetPass = async (call: ServerUnaryCall<forgetData, UserResponse>,callback: sendUnaryData<UserResponse>) => {
         try {
-            console.log('puthya console 1', call.request);
-            const { email, newPassword  } = call.request;
+            const { email, newPassword } = call.request;
             
-            const loginData = { email, newPassword };
-    
+            
+            if (!newPassword) {
+                const grpcError = {
+                    code: grpc.status.INVALID_ARGUMENT,
+                    message: 'New password is required',
+                };
+                callback(grpcError, null);
+                return;
+            }
+            
+            const loginData = { email, newPassword }; // Now newPassword is guaranteed to be string
             const response = await this.LoginService.ForgetPassword(loginData);
             
             callback(null, response);
@@ -62,9 +113,9 @@ export default class LoginController implements IloginController {
     };
 
 
-    ChangingUserPassword = async (call: any, callback: any) => {
+    ChangingUserPassword = async (call: ServerUnaryCall<forgetData, UserResponse>,callback: sendUnaryData<UserResponse>) => {
         try {
-            console.log('Change password request:', call.request);
+          
             const { email, password } = call.request;
             
             // Call the service layer function
@@ -85,7 +136,7 @@ export default class LoginController implements IloginController {
     };
 
 
-    ChangingUserInfo = async (call: any, callback: any) => {
+    ChangingUserInfo = async (call: ServerUnaryCall<forgetData, UserResponse>,callback: sendUnaryData<UserResponse>) => {
         try {
             const { email, name, phoneNumber } = call.request;
     
@@ -107,6 +158,6 @@ export default class LoginController implements IloginController {
             };
             callback(grpcError, null);
         }
-    }
+    };
 
 }

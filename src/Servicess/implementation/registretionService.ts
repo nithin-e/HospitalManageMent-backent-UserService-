@@ -2,12 +2,13 @@ import { userData,UserResponse } from "../../entities/user_interface";
 import bcrypt from "../../services/bcrypt";
 import UserRepository from "../../repositoriess/implementation/registretionRepo";
 import { IRegisterService } from "../interface/registretionServiceFaceInterFace";
+import { IRegistretionInterFaceRepo } from "../../repositoriess/interface/registretionRepoInterFace";
 const jwt = require('jsonwebtoken');
 
 export default class RegistartionService implements IRegisterService {
 
-  private userRepo: UserRepository;
-  constructor(userRepo: UserRepository) {
+  private userRepo: IRegistretionInterFaceRepo;
+  constructor(userRepo: IRegistretionInterFaceRepo) {
     this.userRepo= userRepo
   }
   
@@ -70,19 +71,14 @@ export default class RegistartionService implements IRegisterService {
 
 
 
-    checkUser = async ( email: any,phoneNumber:any) => {
+    checkUser = async ( email: string,phoneNumber:string):Promise<UserResponse> => {
       try {
 
-        console.log('allhamdhillillah',email)
         
         const user = await this.userRepo.checkUser(email,phoneNumber);
-        console.log('return vanno',user)
         
-        if (user) {
-          return { message: "user already have an account" }
-        } else {
-          return { message: "user not registered" }
-        }
+        return user;
+        
       } catch (error: unknown) {
         return { message: (error as Error).message };
       }

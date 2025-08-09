@@ -1,6 +1,9 @@
 import { User } from '../../entities/user_schema';
+import { DoctorDb } from "../../entities/doctor_schema";
+import { IUserBlockAndUnblockServiceRepo } from '../interface/UserBlockAndUnblockInterFace';
 
-export default class UserBlockAndUnblockRepository {
+export default class UserBlockAndUnblockRepository implements IUserBlockAndUnblockServiceRepo {
+
   async blocking_User(userId: string): Promise<boolean> {
     try {
       const user = await User.findById(userId);
@@ -50,6 +53,25 @@ export default class UserBlockAndUnblockRepository {
       return true; // Indicate successful unblocking
     } catch (error) {
       console.error('Error unblocking user in repository:', error);
+      throw error;
+    }
+  }
+
+
+
+  async blockingDoctor(doctorEmail: string): Promise<boolean> {
+    try {
+    
+      const result = await DoctorDb.updateOne(
+        { email: doctorEmail },
+        { $set: { isActive: false } }
+      );
+     
+     
+      
+      return true
+    } catch (error) {
+      console.error('Error blocking doctor in repository:', error);
       throw error;
     }
   }

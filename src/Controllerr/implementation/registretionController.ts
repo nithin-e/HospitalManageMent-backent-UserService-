@@ -1,26 +1,40 @@
-import { IregistretionInterFaceController } from "../interFaces/registretionControllerInterface";
-import RegistretionService from '../../Servicess/implementation/registretionService'
+
 import * as grpc from '@grpc/grpc-js';
 import { IRegisterService } from "../../Servicess/interface/registretionServiceFaceInterFace";
+import { ServerUnaryCall, sendUnaryData, ServiceError } from '@grpc/grpc-js';
+import { userData, UserResponse } from "../../entities/user_interface";
 
 
-export default class RegistrationController implements IregistretionInterFaceController{
+export interface signupResponse {
+  user: UserResponse;
+      accessToken: string;
+      refreshToken: string;
+}
+
+ export interface checkResponse{
+  
+ }
+
+
+export default class RegistrationController {
   private RegistretionService:IRegisterService
 
   constructor(RegistretionService:IRegisterService) {
     this.RegistretionService = RegistretionService;
   }
-  signup = async (call: any, callback: any) => {
-    console.log('Raw gRPC request:', call.request);
+
+
+  signup = async (call: ServerUnaryCall<userData,signupResponse>, callback: sendUnaryData<signupResponse>) => {
+
   
     const { name, email, password, phone_number, google_id } = call.request; 
-    console.log('Destructured data:', { name, email, password, phone_number, google_id });
+
   
-    const userData = { name, email, password, phone_number, google_id }; // Added googleId
+    const userData = { name, email, password, phone_number, google_id }; 
   
     try {
       const response = await this.RegistretionService.user_registration(userData);
-      console.log('.....', response.user);
+      
   
       // Construct the User message
       const userMessage = {
@@ -45,7 +59,7 @@ export default class RegistrationController implements IregistretionInterFaceCon
         refreshToken: response.refreshToken,
       };
   
-      // Pass the serialized response to the callback
+      
       callback(null, registerResponse);
     } catch (error) {
       console.log('mmmmm', error);
@@ -58,7 +72,7 @@ export default class RegistrationController implements IregistretionInterFaceCon
   };
   
 
-  CheckUser=async(call: any, callback: any)=>{
+  CheckUser=async(call: ServerUnaryCall<userData,signupResponse>, callback: sendUnaryData<checkResponse>)=>{
      try {
 
       const { email,phoneNumber } = call.request;
@@ -66,23 +80,15 @@ export default class RegistrationController implements IregistretionInterFaceCon
       
       
       const response = await this.RegistretionService.checkUser(email,phoneNumber)
-      console.log("response===", response);
+      
 
-      if (response.message === "user not registered") {
-        
-       console.log('hey hey hey avasanam controllerk ethi lele')
-
-      //  const token = await sendOtp(email, name)
-
+      if (response.success) {
+        console.log("response=if==", response);
         callback(null, response)
-       
-       
-        
       } else {
+        console.log("response=else==", response);
         callback(null, response);
       }
-
-
      } catch (error) {
       console.log('mmmmm', error);
       const grpcError = {

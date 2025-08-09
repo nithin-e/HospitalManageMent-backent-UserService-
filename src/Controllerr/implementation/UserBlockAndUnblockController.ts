@@ -1,30 +1,32 @@
 // UserBlockAndUnblockController.ts
-import { IUserBlockAndUnblockController } from "../interFaces/UserBlockAndUnblockInterface";
-import UserBlockAndUnblockService from '../../Servicess/implementation/UserBlockAndUnblockService'
 import { sendUnaryData, ServerUnaryCall } from "@grpc/grpc-js";
+import * as grpc from '@grpc/grpc-js';
+import { UserResponse } from "../../entities/user_interface";
+import { IUserBlockAndUnblockService } from "../../Servicess/interface/UserBlockAndUnblockInterFace";
 
-export default class UserBlockAndUnblockController implements IUserBlockAndUnblockController {
-  private UserBlockAndUnblockService: UserBlockAndUnblockService;
+
+export interface BlockingUser {
+  id:string;
+  email:string;
+}
+
+
+export default class UserBlockAndUnblockController  {
+  private UserBlockAndUnblockService: IUserBlockAndUnblockService;
   
-  constructor(UserBlockAndUnblockService: UserBlockAndUnblockService) {
-    console.log('🔍 Controller Constructor - Received service:', UserBlockAndUnblockService);
-    console.log('🔍 Service methods:', Object.getOwnPropertyNames(Object.getPrototypeOf(UserBlockAndUnblockService)));
-    
+  constructor(UserBlockAndUnblockService: IUserBlockAndUnblockService) {
     this.UserBlockAndUnblockService = UserBlockAndUnblockService;
-    
-    console.log('🔍 Controller Constructor - Service assigned:', this.UserBlockAndUnblockService);
   }
 
   async blockUser(
-    call: ServerUnaryCall<any, any>, 
-    callback: sendUnaryData<any>
+    call: ServerUnaryCall<BlockingUser, boolean>, 
+    callback: sendUnaryData<UserResponse>
   ): Promise<void> {
     try {
-      console.log('🔍 Block User - Service check:', this.UserBlockAndUnblockService);
-      console.log('🔍 Block User - BlockingUser method exists:', typeof this.UserBlockAndUnblockService?.BlockingUser);
+      console.log('check this call request',call.request)
       
-      const { id: userId } = call.request;
-      console.log('Extracted user id:', userId);
+      const { id:userId } = call.request;
+      
       
       // Add null check
       if (!this.UserBlockAndUnblockService) {
@@ -53,23 +55,24 @@ export default class UserBlockAndUnblockController implements IUserBlockAndUnblo
   }
 
   async unblockUser(
-    call: ServerUnaryCall<any, any>, 
-    callback: sendUnaryData<any>
+    call: ServerUnaryCall<BlockingUser, boolean>, 
+    callback: sendUnaryData<UserResponse>
   ): Promise<void> {
     try {
-      const { id: userId } = call.request;
+
+      console.log('check this call request',call.request)
+      const {id:userId } = call.request;
       
-     console.log('check up the user id is getting or not ',userId);
-     
-     
-      
-     
       const result = await this.UserBlockAndUnblockService.unBlockingUser(userId);
       
+
       callback(null, { 
         success: true, 
-        message: 'User unblocked successfully' 
+        message: 'User unBlocked successfully' 
       });
+      // callback(null, { 
+      //   result
+      // });
       
     } catch (error: any) {
       console.error('Error unblocking user:', error);
@@ -78,5 +81,26 @@ export default class UserBlockAndUnblockController implements IUserBlockAndUnblo
         message: error.message || 'Failed to unblock user' 
       });
     }
+  }
+
+  blockDoctor = async (call:ServerUnaryCall<BlockingUser, boolean>, callback: sendUnaryData<UserResponse>) => {
+    try {
+
+      console.log('check this call request',call.request)
+      const {email}=call.request;
+
+      const response =await this.UserBlockAndUnblockService.BlockingDoctor(email)
+      console.log('check here ',response)
+      
+      callback(null,{success:response} );
+
+    } catch (error) {
+          console.error('Error updating doctor and user after payment:', error);
+          const grpcError = {
+            code: grpc.status.INTERNAL,
+            message: error instanceof Error ? error.message : 'Internal server error'
+          };
+          callback(grpcError, null);
+        }
   }
 }

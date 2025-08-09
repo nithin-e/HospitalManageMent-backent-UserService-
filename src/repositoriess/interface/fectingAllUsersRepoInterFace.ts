@@ -1,7 +1,10 @@
+import { SearchParams } from "../../allTypes/types";
+
 export interface IfectingAllUsersRepository{
-    fetchingAllUserData(call:any,callback:any):Promise<any>;
-    fetching_a__SingleUser(call:any,callback:any):Promise<any>;
-    searchUserDebounce(call:any,callback:any):Promise<any>;
+    fetchingAllUserData():Promise<any>;
+    fetching_a__SingleUser(email:string):Promise<any>;
+    searchUserDebounce(params:SearchParams):Promise<any>;
+    fecthing_UserDetails__ThroughSocket(patientId:string):Promise<any>
    
  
 }

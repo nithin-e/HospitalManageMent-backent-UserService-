@@ -1,4 +1,6 @@
+import { UserResponse } from "../../entities/user_interface";
+
 export interface IUpdateDoctorAndUserAfterPaymentService{
-    updateDoctorAndUserAfterPayment(call:any,callback:any):Promise<any>;
-    DeleteDoctor_AfterAdminReject(call:any,callback:any):Promise<any>;
+    updateDoctorAndUserAfterPayment(email:string):Promise<UserResponse>;
+    DeleteDoctor_AfterAdminReject(email:string):Promise<UserResponse>;
 }

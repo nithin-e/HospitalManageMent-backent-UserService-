@@ -1,17 +1,30 @@
 import { IloginInerfaceService } from "../interface/loginServiceInterFace";
 import LoginRepository from "../../repositoriess/implementation/loginRepo"
 import bcrypt from "../../services/bcrypt";
+import { UserResponse, UserResponsee } from "../../entities/user_interface";
+import { IloginInterFace } from "../../repositoriess/interface/loginRepoInterFace";
 const jwt = require('jsonwebtoken');
 
 
+type LoginResponse = {
+  user: UserResponse;
+  accessToken: string;
+  refreshToken: string;
+  success?:boolean;
+} | {
+  message: string;
+  success?:boolean;
+  error?:string
+};
+
 export default class LoginService implements IloginInerfaceService{
-    private loginRepo: LoginRepository;
+    private loginRepo: IloginInterFace;
   
-    constructor(loginRepo: LoginRepository) {
+    constructor(loginRepo: IloginInterFace) {
       this.loginRepo = loginRepo;
     }
   
-    user_login = async (loginData: { email: string; password: string }) => {
+    user_login = async (loginData: { email: string; password: string }): Promise<LoginResponse> => {
       try {
         console.log('.login usecase...', loginData);
         
@@ -20,10 +33,11 @@ export default class LoginService implements IloginInerfaceService{
           throw new Error("No user data returned from repository")
         }
     
-        console.log('response from use case', response);
+       
     
         if (response.error === 'Invalid credentials') {
-          return { message: response.error }
+          console.log('usecase if condition',response)
+          return {success:false, message: response.error }
         }
     
 
@@ -48,8 +62,10 @@ export default class LoginService implements IloginInerfaceService{
           process.env.JWT_REFRESH_SECRET,
           { expiresIn: '7d' }
         );
+
+        console.log('response from use case', response);
     
-        return { user: response, accessToken, refreshToken };
+        return { user: response, accessToken, refreshToken,success:true };
       } catch (error) {
         console.error("Error in login use case:", error);
         throw error;
@@ -57,13 +73,13 @@ export default class LoginService implements IloginInerfaceService{
     };
 
 
-   ForgetPassword = async (loginData: { email: string; newPassword : string }) => {
+   ForgetPassword = async (loginData: { email: string; newPassword : string }) : Promise<UserResponse> =>{
       try {
         console.log('.login usecase...', loginData);
         
         // Hash the new password
        const hashedPassword = await bcrypt.securePassword(loginData.newPassword );
-       console.log('user pass hashed',hashedPassword);
+       
        
         
         const response = await this.loginRepo.SetUpForgetPassword({
@@ -84,10 +100,10 @@ export default class LoginService implements IloginInerfaceService{
 
 
 
-    changeUser_Password = async (loginData: { email: string; password: string }) => {
+    changeUser_Password = async (loginData: { email: string; password: string }):Promise<UserResponse> => {
       try {
-          // Hash the new password
-          const hashedPassword = await bcrypt.securePassword(loginData.password); // Using bcrypt.hash directly
+         
+          const hashedPassword = await bcrypt.securePassword(loginData.password); 
           console.log('Password hashed successfully');
           
           // Call the repository function
@@ -106,16 +122,17 @@ export default class LoginService implements IloginInerfaceService{
   };
 
 
-  changingUser_Information = async (userData: { 
+  changingUser_Information = async (loginData: { 
     email: string; 
     name: string; 
     phoneNumber: string 
-}) => {
+}):Promise<UserResponse> => {
+  
     try {
         const response = await this.loginRepo.changing_User___Information({
-            email: userData.email,
-            name: userData.name,
-            phoneNumber: userData.phoneNumber
+            email: loginData.email,
+            name: loginData.name,
+            phoneNumber: loginData.phoneNumber
         });
         
         console.log('Response from repository:', response);

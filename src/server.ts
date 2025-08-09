@@ -31,6 +31,15 @@ import loginRepo from "../src/repositoriess/implementation/loginRepo"
 import registretionRepo from './repositoriess/implementation/registretionRepo'
 // import userBlockAndUnblockRepo from './repositoriess/implementation/UserBlockAndUnblockRepo'
 
+
+
+import FetchAllUsersController from '../src/Controllerr/implementation/fectingAllUsersController';
+import FetchAllUsersService from '../src/Servicess/implementation/fectingAllUsersService';
+import FetchAllUsersRepository from "../src/repositoriess/implementation/fectingAllDoctorsRepo";
+
+
+
+
 //login user
 const LoginRepo=new loginRepo()
 const LoginService=new loginService(LoginRepo)
@@ -54,7 +63,9 @@ const FetchAllDoctorr =new fetchAllDoctorr(FetchAllDoctorService)
 //fecting User
 const FetchAllUserRepo= new fetchAllUserRepo()
 const FetchAllUserService=new fetchAllUserService(FetchAllUserRepo)
-const FetchAllUsersControllerr =new fetchAllUsersControllerr(FetchAllUserService)
+const fetchAllUsersController =new fetchAllUsersControllerr(FetchAllUserService)
+
+
 
 // UpdateDoctorAndUserAfterPayment
 const UpdateDoctorAndUserAfterPaymentRepo=new updateDoctorAndUserAfterPaymentRepo()
@@ -126,13 +137,17 @@ grpcServer.addService(userProto.User.service, {
   DeleteDoctorAfterAdminReject:UpdateDoctorAndUserAfterPaymentControllerr.DeleteDoctorAfter__AdminReject,
   FetchDoctorDashBoardData:FetchAllDoctorr.fetchingSingleDoctor,
   ApplyDoctor :ApplyDoctorControllerr.applyForDoctor,
-  FetchAllUsers: FetchAllUsersControllerr.fetchAllUser,
-  fectingUserProfileDatas:FetchAllUsersControllerr.fetchingSingleUserData,
+  FetchAllUsers: fetchAllUsersController.fetchAllUser,
+  fectingUserProfileDatas:fetchAllUsersController.fetchingSingleUserData,
   ChangingUserInfo: LoginControllerr.ChangingUserInfo,
-  SearchUsers:FetchAllUsersControllerr.searchUserDebounce,
+  SearchUsers:fetchAllUsersController.searchUserDebounce,
   BlockUser: UserBlockAndUnblockControllerr.blockUser.bind(UserBlockAndUnblockControllerr),
-  UnblockUser: UserBlockAndUnblockControllerr.unblockUser.bind(UserBlockAndUnblockControllerr)
+  UnblockUser: UserBlockAndUnblockControllerr.unblockUser.bind(UserBlockAndUnblockControllerr),
+  fecthingUserDetailsThroughSockets:fetchAllUsersController.fecthingUserDetails_ThroughSocket,
+   blockingDoctor:UserBlockAndUnblockControllerr.blockDoctor
 });
+// FetchDoctorDashBoardData
+
 console.log('Services added to gRPC server');
 
 // Start gRPC server

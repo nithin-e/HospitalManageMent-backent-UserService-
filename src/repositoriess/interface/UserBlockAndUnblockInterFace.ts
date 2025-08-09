@@ -1,5 +1,5 @@
-
-export interface IUpdateDoctorAndUserAfterPaymentInterFace{
-    updateDoctorAndUserAfterPayment(call:any,callback:any):Promise<any>;
-    DeleteDoctor_After_AdminReject(call:any,callback:any):Promise<any>;
+export interface IUserBlockAndUnblockServiceRepo {
+    blocking_User(userId:string):Promise<boolean>;
+    unBlocking_User(userId:string):Promise<boolean>;
+    blockingDoctor(email:string):Promise<boolean>;
 }

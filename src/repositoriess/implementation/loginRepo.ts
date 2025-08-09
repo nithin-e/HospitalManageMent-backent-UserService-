@@ -11,39 +11,39 @@ export default class loginRepository implements IloginInterFace{
   checkingUserExist = async (userData: {
     email: string;
     password?: string;
-    googleId?: string;
+    google_id?: string;
     name?:string;
     phoneNumber?:string;
   }): Promise<UserResponse> => {
     try {
-      // Handle Google user login/registration
-      if (userData.googleId) {
+      
+      if (userData.google_id) {
         console.log('Google auth flow detected...');
         
-        // Find or create user
+       
         let existingUser = await User.findOne({ email: userData.email });
         
         if (!existingUser) {
-          // Create new user with Google data
+          
           console.log('Creating new Google user...');
           existingUser = new User({
             email: userData.email,
-            googleId: userData.googleId,
+            googleId: userData.google_id,
             password:userData.password || '',
             name: userData.name || '',
             phoneNumber: userData.phoneNumber || '',
             role: 'user'
           });
         } else {
-          existingUser.googleId = userData.googleId;
+          existingUser.googleId = userData.google_id;
         }
         
-        // Save user and return
+        
         await existingUser.save();
         return existingUser as UserResponse;
       }
       
-      // Regular password-based authentication
+      
       const existingUser = await User.findOne({ email: userData.email });
       console.log('......inside repo....', existingUser);
       
@@ -126,7 +126,7 @@ export default class loginRepository implements IloginInterFace{
             };
         }
         
-        // Update password if provided
+       
         if (userData.newPassword) {
             user.password = userData.newPassword;
             await user.save();

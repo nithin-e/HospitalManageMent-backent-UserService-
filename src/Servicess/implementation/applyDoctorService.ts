@@ -1,5 +1,7 @@
-import { DoctorFormData } from "../../entities/user_interface";
+import {  StatusUpdateResponse } from "../../allTypes/types";
+import { DoctorFormData,DoctorApplicationResponse } from "../../allTypes/types";
 import ApplyDoctorRepository from "../../repositoriess/implementation/applyDoctorRepo";
+import { IapplyDoctorRepository } from "../../repositoriess/interface/applyDoctorRepoInterFace";
 import bcrypt from "../../services/bcrypt";
 import { IapplyDoctorService } from "../interface/applyDoctorServicesInterface";
 
@@ -7,15 +9,15 @@ import { IapplyDoctorService } from "../interface/applyDoctorServicesInterface";
 
 export default class ApplyDoctorService  implements IapplyDoctorService {
 
-    private applyDoctorRepo: ApplyDoctorRepository;
+    private applyDoctorRepo: IapplyDoctorRepository;
     
-    constructor(applyDoctorRepo: ApplyDoctorRepository) {
+    constructor(applyDoctorRepo: IapplyDoctorRepository) {
       this.applyDoctorRepo= applyDoctorRepo
     }
     
-    apply_For_doctor = async (doctorData: DoctorFormData): Promise<any> => {
+    apply_For_doctor = async (doctorData:DoctorFormData ): Promise<DoctorApplicationResponse> => {
       try {
-        // Destructure with camelCase keys
+     
         const {
           userId,
           firstName,
@@ -39,7 +41,7 @@ export default class ApplyDoctorService  implements IapplyDoctorService {
         const profileImageUrl = documentUrls && documentUrls.length > 0 ? documentUrls[0] : null;
         const medicalLicenseUrl = documentUrls && documentUrls.length > 1 ? documentUrls[1] : null;
     
-        // Create doctor data with all required fields
+        
         const newDoctorData = {
           userId,
           firstName,
@@ -55,11 +57,24 @@ export default class ApplyDoctorService  implements IapplyDoctorService {
           agreeTerms: typeof agreeTerms === 'string' ? agreeTerms === 'true' : !!agreeTerms,
         };
     
-        // console.log('inside the use case', newDoctorData);
-    
+
         const response = await this.applyDoctorRepo.apply_For_doctorRepo(newDoctorData);
     
-        return response;
+    
+
+        if (response.success && response.doctor) {
+          return {
+            id: response.doctor.id,
+            firstName: response.doctor.firstName,
+            lastName: response.doctor.lastName,
+            email: response.doctor.email,
+            status: response.doctor.status,
+            message: response.message,
+          };
+        } else {
+         
+          throw new Error(response.message || 'Doctor application failed');
+        }
       } catch (error) {
         console.log('Error in use case:', error);
         throw error;
@@ -67,16 +82,10 @@ export default class ApplyDoctorService  implements IapplyDoctorService {
     }
 
 
-    UpdateDctorStatus__AfterAdminApprove= async (email:any): Promise<any> => {
+    UpdateDctorStatus__AfterAdminApprove= async (email:string): Promise<StatusUpdateResponse> => {
       try {
-        // Destructure with camelCase keys
-       
-    
-       
-    
-    
-        // console.log('inside the use case', email);
-    
+      
+      
         const response = await this.applyDoctorRepo.UpdateDctorStatus__AfterAdminApprove__doctorRepo(email);
     
         return response;

@@ -1,14 +1,16 @@
 import { IUpdateDoctorAndUserAfterPaymentService } from '../interface/UpdateDoctorAndUserAfterPaymentInterFace';
 import UpdateDoctorAndUserAfterPaymentRepository from '../../repositoriess/implementation/UpdateDoctorAndUserAfterPaymentRepo';
+import { UserResponse } from '../../entities/user_interface';
+import { IUpdateDoctorAndUserAfterPaymentInterFace } from '../../repositoriess/interface/UpdateDoctorAndUserAfterPaymentInterface';
 
 export default class UpdateDoctorAndUserAfterPaymentService implements IUpdateDoctorAndUserAfterPaymentService {
-  private updateDoctorAndUserAfterPaymentRepo: UpdateDoctorAndUserAfterPaymentRepository;
+  private updateDoctorAndUserAfterPaymentRepo: IUpdateDoctorAndUserAfterPaymentInterFace;
   
-  constructor(updateDoctorAndUserAfterPaymentRepo: UpdateDoctorAndUserAfterPaymentRepository) {
+  constructor(updateDoctorAndUserAfterPaymentRepo: IUpdateDoctorAndUserAfterPaymentInterFace) {
     this.updateDoctorAndUserAfterPaymentRepo = updateDoctorAndUserAfterPaymentRepo;
   }
   
-  updateDoctorAndUserAfterPayment = async (email: string) => {
+  updateDoctorAndUserAfterPayment = async (email: string):Promise<UserResponse> => {
     try {
       const response = await this.updateDoctorAndUserAfterPaymentRepo.updateDoctorAndUserAfterPayment(email);
       return response;
@@ -18,7 +20,7 @@ export default class UpdateDoctorAndUserAfterPaymentService implements IUpdateDo
     }
   }
 
-  DeleteDoctor_AfterAdminReject = async (email: string) => {
+  DeleteDoctor_AfterAdminReject = async (email: string):Promise <UserResponse> => {
     try {
       const response = await this.updateDoctorAndUserAfterPaymentRepo.DeleteDoctor_After_AdminReject(email);
       return response;

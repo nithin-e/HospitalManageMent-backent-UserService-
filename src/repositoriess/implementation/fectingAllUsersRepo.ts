@@ -4,6 +4,12 @@ import { IfectingAllUsersRepository } from '../interface/fectingAllUsersRepoInte
 
 
 
+export interface RepositoryUsersResponse {
+  success?: boolean;
+  data: User[];
+  message?: string;
+}
+
 interface SearchParams {
   searchQuery: string;
   sortBy: string;
@@ -16,24 +22,19 @@ interface SearchParams {
 export default class FetchAllDataRepository implements IfectingAllUsersRepository{
     
   
-    fetchingAllUserData = async () => {
-      try {
-       
-        const users = await User.find({});
-        
-        return {
-          data: users
-        }
+  async fetchingAllUserData() : Promise<RepositoryUsersResponse>{
+    try {
+      const users = await User.find({});
+      return {
+        data: users
+      };
+    } catch (error) {
+      console.error("Error fetching all users:", error);
+      throw new Error("Failed to fetch users");
+    }
+  }
 
-      } catch (error) {
-        console.error("Error fetching all users:", error);
-        console.error("Login error in repo:", error);
-        throw error;
-      }
-    };
-
-
-    fetching_a__SingleUser = async (email: string) => {
+    fetching_a__SingleUser = async (email: string):Promise<User> => {
       try {
         console.log('Fetching user with email in repo:', email);
         
@@ -45,16 +46,7 @@ export default class FetchAllDataRepository implements IfectingAllUsersRepositor
         }
         
         // Return the user data
-        return {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          password: '', // Don't send actual password
-          phone_number: user.phoneNumber,
-          // google_id: user.google_id || '',
-          role: user.role || 'user',
-          isActive: user.isActive !== undefined ? user.isActive : true
-        };
+        return user;
       } catch (error) {
         console.error("Error fetching user:", error);
         throw error;
@@ -68,9 +60,9 @@ export default class FetchAllDataRepository implements IfectingAllUsersRepositor
         const { searchQuery, sortBy, sortDirection, role, page, limit } = params;
         const query: any = {};
         
-        console.log('..inside the repo check the params..', params);
+        
   
-        // Build search query
+       
         if (searchQuery && searchQuery.trim()) {
           query.$or = [
             { name: { $regex: searchQuery, $options: 'i' } },
@@ -131,6 +123,26 @@ export default class FetchAllDataRepository implements IfectingAllUsersRepositor
   };
 
 
+
+  fecthing_UserDetails__ThroughSocket = async (patientId: string) => {
+    try {
+      console.log('Repository: Fetching user with ID:', patientId);
+      
+      // Assuming you're using MongoDB with Mongoose
+      const user = await User.findById(patientId).select('-password');
+      
+      if (!user) {
+        throw new Error(`User not found with ID: ${patientId}`);
+      }
+      
+      console.log('Repository: User found:', user);
+      return user;
+      
+    } catch (error) {
+      console.error("Error fetching user from database:", error);
+      throw error;
+    }
+}
   
   
 

@@ -1,43 +1,41 @@
-import {DoctorDb} from '../../entities/doctor_schema'
-import  {IfectingAllDoctorsInterFace}  from '../interface/fectingAllDoctorsInterFace';
+import { DoctorDb } from '../../entities/doctor_schema'
+import { IfectingAllDoctorsInterFace } from '../interface/fectingAllDoctorsInterFace';
+import { RepositoryDoctorsResponse, RepositorySingleDoctorResponse, RepositorySingleDoctorResponsee } from '../../allTypes/types';
 
+export default class FetchAllDoctorRepository implements IfectingAllDoctorsInterFace {
+    async fetchingAllDoctorData(): Promise<RepositoryDoctorsResponse> {
+        try {
+            const doctors = await DoctorDb.find();
+            return {
+              success: true,
+              data: doctors,
+              message: "Doctors fetched successfully",
+            };
+          } catch (error) {
+            console.error("Error fetching doctors:", error);
+            throw error;
+          }
+    }
 
-
-export default class FetchAllDoctorRepository implements IfectingAllDoctorsInterFace{
     
-  
-    fetchingAllDoctorData = async () => {
-      try {
-       
-        const doctors = await DoctorDb.find({});
-        
-        return {
-          data: doctors
+
+
+
+    async fetchSingleDoctorByEmail(email: string): Promise<RepositorySingleDoctorResponsee> {
+        try {
+            console.log('repo before res', email);
+            const doctor = await DoctorDb.findOne({ email: email });
+            console.log('repo after res', doctor);
+
+            return {
+                success: true,
+                doctor: doctor,
+                message: doctor ? 'Doctor found successfully' : 'Doctor not found'
+            };
+        } catch (error) {
+            console.error("Error fetching doctor in repository:", error);
+            throw error;
         }
-
-      } catch (error) {
-        console.error("Error fetching all users:", error);
-        console.error("Login error in repo:", error);
-        throw error;
-      }
-    };
-
-    fetchSingleDoctorByEmail = async (email: string) => {
-      try {
-
-        console.log('repo before res',email);
-        const doctor = await DoctorDb.findOne({ email: email });
-        
-        console.log('repo after res',doctor);
-
-        return {
-          data: doctor
-        };
-
-      } catch (error) {
-        console.error("Error fetching doctor in repository:", error);
-        throw error;
-      }
-    };
-
-  }
+    }
+    
+}

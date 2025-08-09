@@ -1,11 +1,12 @@
 import {User} from "../../entities/user_schema";
 import { DoctorDb } from "../../entities/doctor_schema";
 import { IUpdateDoctorAndUserAfterPaymentInterFace } from "../interface/UpdateDoctorAndUserAfterPaymentInterface";
+import { UserResponse } from "../../entities/user_interface";
 
 
 export default class UpdateDoctorAndUserAfterPaymentRepository implements IUpdateDoctorAndUserAfterPaymentInterFace {
 
-  updateDoctorAndUserAfterPayment = async (email: string) => {
+  updateDoctorAndUserAfterPayment = async (email: string):Promise<UserResponse> => {
     try {
       console.log('Processing payment update for email inside repo:', email);
 
@@ -28,11 +29,11 @@ export default class UpdateDoctorAndUserAfterPaymentRepository implements IUpdat
   };
 
 
-  DeleteDoctor_After_AdminReject = async (email: string) => {
+  DeleteDoctor_After_AdminReject = async (email: string):Promise<UserResponse> => {
     try {
-      console.log('Processing payment update for email inside repo:', email);
+      
 
-      const doctorResult = await DoctorDb.findOneAndDelete({ email });
+       await DoctorDb.findOneAndDelete({ email });
 
       return { success: true };
     } catch (error) {

@@ -1,7 +1,7 @@
 import * as grpc from '@grpc/grpc-js';
-import { IfectingAllUsersController } from '../interFaces/fectingAllUsersInterface';
-import FectingAllUsersService from '../../Servicess/implementation/fectingAllUsersService';
+
 import { Document, Types } from 'mongoose'; 
+import { IfectingAllUsersService } from '../../Servicess/interface/fectingAllUsersServiceInterFace';
 
 
 interface UserDocument extends Document {
@@ -33,76 +33,70 @@ interface FormattedResponse {
   users: FormattedUser[];
 }
 
-export default class fetchController implements IfectingAllUsersController {
-  private FectingAllUsersService: FectingAllUsersService;
+interface SearchUserRequest {
+  searchQuery?: string;
+  sortBy?: string;
+  sortDirection?: 'asc' | 'desc';
+  role?: string;
+  page?: number;
+  limit?: number;
+}
 
-  constructor(FectingAllUsersService: FectingAllUsersService) {
+export default class fetchController  {
+  private FectingAllUsersService: IfectingAllUsersService;
+
+  constructor(FectingAllUsersService: IfectingAllUsersService) {
     this.FectingAllUsersService = FectingAllUsersService;
   }
 
   fetchAllUser = async (call: any, callback: any) => {
     try {
       const response = await this.FectingAllUsersService.fecting_Data();
-      console.log('ibde onn nokeee', response);
-
-      // Format the response according to your proto definition
-      const formattedResponse: FormattedResponse = {
-        users: response.data.map((doc) => ({
-          name: doc.name,
-          email: doc.email,
-          password: doc.password || '',
-          phoneNumber: doc.phoneNumber || '',
-          googleId: doc.googleId || '',
-          role: doc.role || '',
-          id: doc._id.toString(), // Convert ObjectId to string
-          isActive: doc.isActive
-        }))
+  
+      const formattedResponse = {
+        users: response,
       };
-      
+  
       callback(null, formattedResponse);
     } catch (error) {
-      console.log('mmmmm', error);
       const grpcError = {
         code: grpc.status.INTERNAL,
         message: (error as Error).message,
       };
       callback(grpcError, null);
     }
-  }
+  };
+  
 
   fetchingSingleUserData = async (call: any, callback: any) => {
     try {
       const { email } = call.request;
+  
       const response = await this.FectingAllUsersService.fecting_SingleUser(email);
-      console.log('User data retrieved  inside controller bro:', response);
-
-      // Create response object according to proto definition
+  
       const userData = {
         id: response.id,
         name: response.name,
         email: response.email,
-        password: '', // Don't send actual password for security
+        password: "", // mask
         phone_number: response.phone_number,
         role: response.role,
-        isActive: response.isActive
+        isActive: response.isActive,
       };
-
-      // Return the user data in the callback
+  
       callback(null, { user: userData });
     } catch (error) {
-      console.log('Error fetching user data:', error);
-      const grpcError = {
-        code: grpc.status.INTERNAL,
-        message: (error as Error).message,
-      };
-      callback(grpcError, null);
+      console.log("Error fetching user data in controller:", error);
+      callback({ code: grpc.status.INTERNAL, message: (error as Error).message }, null);
     }
 }
 
 
-searchUserDebounce = async (call: any, callback: any) => {
+// searchUserDebounce = async (call: any, callback: any) => {
+  searchUserDebounce = async (call: { request: SearchUserRequest }, callback: (error: any, response: any) => void) => {
+
   try {
-    // Extract all fields from the SearchUsersRequest
+   
     const { 
       searchQuery = '', 
       sortBy = 'createdAt',
@@ -112,24 +106,19 @@ searchUserDebounce = async (call: any, callback: any) => {
       limit = 50
     } = call.request;
 
-    console.log('Full request data:', call.request);
-    console.log('Search query:', searchQuery);
-    console.log('Sort by:', sortBy);
-    console.log('Sort direction:', sortDirection);
-    console.log('Role filter:', role);
-    console.log('Page:', page);
-    console.log('Limit:', limit);
+  
     
     // Pass all parameters to the service
-    const response = await this.FectingAllUsersService.searchUserDebounce({
+    const response = await this.FectingAllUsersService.searchUserDebounce(
       searchQuery,
       sortBy,
       sortDirection,
       role,
       page,
       limit
-    });
-    
+    );
+
+
     callback(null, response);
   } catch (error) {
     console.log('Error in debounced search:', error);
@@ -140,5 +129,45 @@ searchUserDebounce = async (call: any, callback: any) => {
     callback(grpcError, null);
   }
 };
+
+
+
+fecthingUserDetails_ThroughSocket = async (call: any, callback: any) => {
+  try {
+    const { appointmentId, doctorId, patientId, roomId, doctorName } = call.request;
+    
+    console.log('Received request data:', {
+      appointmentId,
+      doctorId,
+      patientId,
+      roomId,
+      doctorName
+    });
+
+    // Fetch only patient details using patientId
+    const patientResponse = await this.FectingAllUsersService.fecthingUserDetails__ThroughSocket(patientId);
+
+    const userData = {
+      id: patientResponse.id,
+      name: patientResponse.name,
+      email: patientResponse.email,
+      isActive: patientResponse.isActive,
+      role: patientResponse.role,
+      createdAt: patientResponse.createdAt || '',    
+    };
+
+    console.log('Patient data retrieved:', userData);
+    
+    
+    callback(null, { user: userData });  
+  } catch (error) {
+    console.log('Error fetching user data:', error);
+    const grpcError = {
+      code: grpc.status.INTERNAL,
+      message: (error as Error).message,
+    };
+    callback(grpcError, null);
+  }
+}
 
 }

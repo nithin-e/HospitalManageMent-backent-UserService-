@@ -1,8 +1,6 @@
+import { RepositoryDoctorsResponse, RepositorySingleDoctorResponse, RepositorySingleDoctorResponsee } from "../../allTypes/types";
 
-interface returnData{
-    name:string,
-}
-export interface IfectingAllDoctorsService{
-    fectingDoctor_Data(call:any,callback:any):Promise<any>;
-    fetchSingleDoctorByEmail(call:any,callback:any):Promise<any>;
+export interface IfectingAllDoctorsService {
+    fectingDoctor_Data(): Promise<RepositoryDoctorsResponse>;
+    fetchSingleDoctorByEmail(email: string): Promise<RepositorySingleDoctorResponsee>;
 }

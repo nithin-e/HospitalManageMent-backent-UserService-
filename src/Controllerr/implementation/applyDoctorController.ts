@@ -1,20 +1,27 @@
 
 import * as grpc from '@grpc/grpc-js';
-import ApplyDoctorService from '../../Servicess/implementation/applyDoctorService';
-import { IapplyDoctorController } from '../interFaces/applyDoctorInterFace';
+import { ApplyDoctorRequest, ApplyDoctorResponse,
+  UpdateDoctorStatusAfterAdminApproveRequest,
+  UpdateDoctorStatusAfterAdminApproveResponse
+ } from '../../allTypes/types';
+import { IapplyDoctorService } from '../../Servicess/interface/applyDoctorServicesInterface';
+
+type ApplyDoctorCall = grpc.ServerUnaryCall<ApplyDoctorRequest, ApplyDoctorResponse>;
+type UpdateStatusCall = grpc.ServerUnaryCall<UpdateDoctorStatusAfterAdminApproveRequest, UpdateDoctorStatusAfterAdminApproveResponse>;
+
+type GRPCCallback<T> = grpc.sendUnaryData<T>;
 
 
+export default class applyDoctorController  {
+  private applyDoctorService: IapplyDoctorService;
 
-export default class applyDoctorController implements IapplyDoctorController {
-  private applyDoctorService: ApplyDoctorService;
-
-  constructor(ApplyDoctorService:ApplyDoctorService) {
+  constructor(ApplyDoctorService:IapplyDoctorService) {
     this.applyDoctorService = ApplyDoctorService; 
   }
-  applyForDoctor = async (call: any, callback: any) => {
-    console.log('doctor datas:', call.request);
-  
-    // Normalize snake_case to camelCase
+
+
+  applyForDoctor = async (call: ApplyDoctorCall,  callback: GRPCCallback<ApplyDoctorResponse>) => {
+    console.log('check the doctor data inside the controller:',call.request)
     const doctorData = {
       userId :call.request.userId, 
       firstName: call.request.first_name,
@@ -26,15 +33,28 @@ export default class applyDoctorController implements IapplyDoctorController {
       qualifications: call.request.qualifications,
       medicalLicenseNumber: call.request.medical_license_number,
       agreeTerms: call.request.agree_terms,
-      documentUrls: call.request.document_urls, // Pass document_urls as is
+      documentUrls: call.request.document_urls, 
     };
+
+
   
     try {
       const response = await this.applyDoctorService.apply_For_doctor(doctorData);
-      console.log('Doctor application successful:', response);
+      const grpcResponse: ApplyDoctorResponse = {
+        success: true, 
+        id: response.id,
+        first_name: response.firstName,
+        last_name: response.lastName,
+        email: response.email,
+        phone_number: call.request.phone_number, 
+        specialty: call.request.specialty, 
+        status: response.status,
+        message: response.message || 'Doctor application submitted successfully',
+      };
   
-      // Return successful response
-      callback(null, response);
+      callback(null, grpcResponse);
+  
+     
     } catch (error) {
       console.log('Error in applyForDoctor:', error);
       const grpcError = {
@@ -46,7 +66,7 @@ export default class applyDoctorController implements IapplyDoctorController {
   };
 
 
-  UpdateDoctorStatusAfterAdminApprove = async (call: any, callback: any) => {
+  UpdateDoctorStatusAfterAdminApprove = async (call: UpdateStatusCall, callback: GRPCCallback<UpdateDoctorStatusAfterAdminApproveResponse>) => {
     console.log('doctor datas:', call.request);
   
     const {email}=call.request

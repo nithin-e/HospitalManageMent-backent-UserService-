@@ -1,27 +1,23 @@
-const mongoose = require("mongoose");
+// models/doctor/doctorModel.ts
+import mongoose, { Document } from "mongoose";
+import { Doctor } from "../allTypes/types";
 
-const doctorSchema = new mongoose.Schema({
+
+
+const doctorSchema = new mongoose.Schema<Doctor>({
   firstName: String,
   lastName: String,
   email: String,
-  password: String,
   phoneNumber: String,
   licenseNumber: String,
   medicalLicenseNumber: String,
   specialty: String,
   qualifications: String,
   agreeTerms: Boolean,
-  profileImageUrl: String, // Separate field for profile image
-  medicalLicenseUrl: String, // Separate field for medical license
-  status: {
-    type: String,
-    default: 'pending'
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  }
+  profileImageUrl: String,
+  medicalLicenseUrl: String,
+  status: { type: String, default: 'pending' },
+  isActive: { type: Boolean, default: true },
 });
 
-
-export const DoctorDb  = mongoose.model("Doctor", doctorSchema);
+export const DoctorDb = mongoose.model<Doctor>("Doctor", doctorSchema);

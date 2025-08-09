@@ -24,7 +24,7 @@ export interface userData {
 
   export interface UserResponse {
     _id?: string | Types.ObjectId;  
-    name?: string;
+    name?: string 
     email?: string;
     password?: string;
     phoneNumber?: string;
@@ -36,9 +36,34 @@ export interface userData {
     error?: string;
     role?: string;
     _doc?: any; 
+     isActive?:boolean
+  }
+
+  export interface UserResponsee {
+    _id?: string | Types.ObjectId;  
+    name: string;
+    email?: string;
+    password?: string;
+    phoneNumber?: string;
+    createdAt?: Date;
+    __v?: number;
+    googleId?: string;
+    message?: string;
+    success?: boolean;
+    error?: string;
+    role?: string;
+    _doc?: any; 
+  
+  }
+  
+
+
+  export interface UpdateUserData {
+    email: string;
+    newPassword?: string;
+    phoneNumber: string;
+    name: string; // Add this
 }
-
-
 
 export interface DoctorFormData {
   userId?:string; 
@@ -54,4 +79,48 @@ export interface DoctorFormData {
   profileImageUrl?: string;
   medicalLicenseUrl?: string;
   documentUrls?: string[]; 
+}
+
+
+
+
+
+export type LoginSuccessResponse = {
+  success: true;
+  message:string;
+  data: {
+    user: UserResponse;
+    accessToken: string;
+    refreshToken: string;
+    
+  };
+};
+
+// Error response type
+export type LoginErrorResponse = {
+  success: false;
+  message: string;
+  error?:string
+};
+
+// // Union type for all possible login responses
+// export type LoginResponse = LoginSuccessResponse | LoginErrorResponse;
+
+
+export  interface LoginResponse {
+  user: {
+      _id: string;
+      name: string;
+      email: string;
+      password?: string;
+      phoneNumber: string;
+      googleId: string;
+      role: string;
+      isActive: boolean;
+      createdAt: Date;
+  };
+  accessToken: string;
+  refreshToken: string;
+  success: boolean;
+  message?: string;
 }

@@ -1,4 +1,6 @@
+import { registration, UserResponse } from "../../entities/user_interface";
+
 export interface IRegistretionInterFaceRepo{
-    saveUser(call:any,callback:any):Promise<any>;
-    checkUser(call:any,callback:any):Promise<any>;
+    saveUser(userData: registration):Promise<UserResponse>;
+    checkUser(email: string, phoneNumber: string):Promise<UserResponse>;
 }
