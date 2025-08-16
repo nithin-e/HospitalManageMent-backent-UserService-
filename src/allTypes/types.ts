@@ -248,23 +248,6 @@ export interface StatusUpdateResponse {
   message?: string;
 }
 
-// export interface Doctor {
-//   id: string;
-//   firstName: string;
-//   lastName: string;
-//   email: string;
-//   phoneNumber: string;
-//   licenseNumber: string;
-//   medicalLicenseNumber: string;
-//   specialty: string;
-//   qualifications: string;
-//   agreeTerms: boolean;
-//   profileImageUrl?: string;
-//   medicalLicenseUrl?: string;
-//   status: string;
-//   createdAt: string;
-//   isActive: boolean;
-// }
 
 export interface DoctorsResponse {
   doctors: Doctor[];
@@ -426,23 +409,6 @@ export interface StatusUpdateResponse {
   message?: string;
 }
 
-// export interface Doctor {
-//   id: string;
-//   firstName: string;
-//   lastName: string;
-//   email: string;
-//   phoneNumber: string;
-//   licenseNumber: string;
-//   medicalLicenseNumber: string;
-//   specialty: string;
-//   qualifications: string;
-//   agreeTerms: boolean;
-//   profileImageUrl?: string;
-//   medicalLicenseUrl?: string;
-//   status: string;
-//   createdAt: string;
-//   isActive: boolean;
-// }
 
 export interface DoctorsResponse {
   doctors: Doctor[];
@@ -579,23 +545,7 @@ export interface StatusUpdateResponse {
   message?: string;
 }
 
-// export interface Doctor {
-//   id: string;
-//   firstName: string;
-//   lastName: string;
-//   email: string;
-//   phoneNumber: string;
-//   licenseNumber: string;
-//   medicalLicenseNumber: string;
-//   specialty: string;
-//   qualifications: string;
-//   agreeTerms: boolean;
-//   profileImageUrl?: string;
-//   medicalLicenseUrl?: string;
-//   status: string;
-//   createdAt: string;
-//   isActive: boolean;
-// }
+
 
 export interface DoctorsResponse {
   doctors: Doctor[];
@@ -729,4 +679,9 @@ export interface LoginUserRequest {
   password: string;
   name?: string;
 }
+
+
+
+
+
 

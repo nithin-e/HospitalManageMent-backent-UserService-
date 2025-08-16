@@ -1,79 +1,76 @@
-import bcrypt from "../../services/bcrypt"; // Make sure this is your bcrypt wrapper
+import bcrypt from "../../services/bcrypt"; 
 import {User} from '../../entities/user_schema'
 import { UserResponse } from "../../entities/user_interface";
 import { IloginInterFace } from "../interface/loginRepoInterFace";
+import { BaseRepository } from "../../../../shared/repositories/baseRepository";
+import type { User as UserType } from "../../entities/user_schema";
 
 
 
 
-export default class loginRepository implements IloginInterFace{
+
+export default class LoginRepository 
+  extends BaseRepository<UserType>
+  implements IloginInterFace {
+
+  constructor() {
+    super(User); 
+  }
 
   checkingUserExist = async (userData: {
     email: string;
     password?: string;
     google_id?: string;
-    name?:string;
-    phoneNumber?:string;
+    name?: string;
+    phoneNumber?: string;
   }): Promise<UserResponse> => {
     try {
-      
       if (userData.google_id) {
-        console.log('Google auth flow detected...');
-        
-       
-        let existingUser = await User.findOne({ email: userData.email });
-        
+        console.log("Google auth flow detected...");
+
+        let existingUser = await this.findByEmail(userData.email);
+
         if (!existingUser) {
-          
-          console.log('Creating new Google user...');
-          existingUser = new User({
+          console.log("Creating new Google user...");
+          existingUser = await this.create({
             email: userData.email,
             googleId: userData.google_id,
-            password:userData.password || '',
-            name: userData.name || '',
-            phoneNumber: userData.phoneNumber || '',
-            role: 'user'
-          });
+            password: userData.password || "",
+            name: userData.name || "",
+            phoneNumber: userData.phoneNumber || "",
+            role: "user",
+          } as any);
         } else {
           existingUser.googleId = userData.google_id;
+          await existingUser.save();
         }
-        
-        
-        await existingUser.save();
+
         return existingUser as UserResponse;
       }
-      
-      
-      const existingUser = await User.findOne({ email: userData.email });
-      console.log('......inside repo....', existingUser);
-      
+
+      const existingUser = await this.findByEmail(userData.email);
+      console.log("......inside repo....", existingUser);
+
       if (!existingUser) {
-        console.log('...!existing user...');
-        return {
-          success: false,
-          error: "Invalid credentials",
-        };
+        return { success: false, error: "Invalid credentials" };
       }
-  
+
       const isPasswordValid = await bcrypt.matchPassword(
-        userData.password || '',
-        existingUser.password || ''
+        userData.password || "",
+        existingUser.password || ""
       );
-      
+
       if (!isPasswordValid) {
-        console.log('...!password...');
-        return {
-          success: false,
-          error: "Invalid credentials",
-        };
+        return { success: false, error: "Invalid credentials" };
       }
-  
+
       return existingUser as UserResponse;
     } catch (error) {
       console.error("Login error in repo:", error);
       throw error;
     }
   };
+
 
 
 
@@ -85,7 +82,7 @@ export default class loginRepository implements IloginInterFace{
       console.log('......inside repo....', userData);
       
       // Find user by email
-      const user = await User.findOne({ email: userData.email });
+      const user = await this.findOne( userData.email );
       
       if (!user) {
         return {
@@ -118,7 +115,7 @@ export default class loginRepository implements IloginInterFace{
         console.log('Repository function called with:', userData);
         
         // Find user by email
-        const user = await User.findOne({ email: userData.email });
+        const user = await this.findOne( userData.email );
         
         if (!user) {
             return {

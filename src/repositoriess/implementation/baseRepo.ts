@@ -1,35 +1,25 @@
-import { Model,Document } from "mongoose";
-import { IBaseRepository } from "../interface/IbaseRepository";
+// entities/user_schema.ts
+import mongoose, { Document, Schema } from "mongoose";
 
-export class BaseReBaseRepository <T extends Document>  implements IBaseRepository<T>{
-      protected model: Model<T>;
-
-    constructor(model: Model<T>) {
-    this.model = model;
-  }
-
-  async create(data: Partial<T>): Promise<T> {
-    try {
-      const created = new this.model(data);
-      return await created.save();
-    } catch (err) {
-      console.error("Error while saving document:", err);
-      throw err;
-    }
-  }
-
-   async findById(id: string): Promise<T | null> {
-    return this.model.findById(id);
-  }
-
-
-  async findByEmail(email: string): Promise<T | null> {
-    return this.model.findOne({ email } as any); 
-  }
-
-   async updateById(id: string, updateData: Partial<T>): Promise<T | null> {
-    return this.model.findByIdAndUpdate(id, updateData, { new: true });
-  }
-
-
+export interface UserDocument extends Document {
+  name?: string;
+  email: string;
+  password?: string;
+  googleId?: string;
+  phoneNumber?: string;
+  role?: string;
 }
+
+const UserSchema = new Schema<UserDocument>(
+  {
+    name: String,
+    email: { type: String, required: true },
+    password: String,
+    googleId: String,
+    phoneNumber: String,
+    role: String,
+  },
+  { timestamps: true }
+);
+
+export const User = mongoose.model<UserDocument>("User", UserSchema);

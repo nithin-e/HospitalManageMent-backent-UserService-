@@ -1,8 +1,26 @@
 import { DoctorDb } from '../../entities/doctor_schema'
-import { IfectingAllDoctorsInterFace } from '../interface/fectingAllDoctorsInterFace';
-import { RepositoryDoctorsResponse, RepositorySingleDoctorResponse, RepositorySingleDoctorResponsee } from '../../allTypes/types';
+import {  IfectingAllDoctorsInterFace } from '../interface/fectingAllDoctorsInterFace';
+import {  RepositoryDoctorsResponse, RepositorySingleDoctorResponsee } from '../../allTypes/types';
+import { BaseRepository } from "../../../../shared/repositories/baseRepository";
+import { Document } from 'mongoose';
+
+
+
+
+
+// export default class FetchAllDoctorRepository
+// extends BaseRepository<Document>implements IfectingAllDoctorsInterFace {
+
+// constructor() {
+//     super(DoctorDb )
+//   }
+
 
 export default class FetchAllDoctorRepository implements IfectingAllDoctorsInterFace {
+
+ 
+
+
     async fetchingAllDoctorData(): Promise<RepositoryDoctorsResponse> {
         try {
             const doctors = await DoctorDb.find();

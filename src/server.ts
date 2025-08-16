@@ -5,7 +5,7 @@ import "dotenv/config";
 import connectDB from "./config/mongo";
 
 // Import controllers
-import applyDoctorControllerr from '../src/Controllerr/implementation/applyDoctorController';
+import applyDoctorControllerr from './Controllerr/implementation/applyDoctorController';
 import fetchAllDoctorr from '../src/Controllerr/implementation/fectingAllDoctorsController';
 import fetchAllUsersControllerr from '../src/Controllerr/implementation/fectingAllUsersController';
 import updateDoctorAndUserAfterPaymentControllerr from '../src/Controllerr/implementation/UpdateDoctorAndUserAfterPaymentCon'
@@ -33,9 +33,7 @@ import registretionRepo from './repositoriess/implementation/registretionRepo'
 
 
 
-import FetchAllUsersController from '../src/Controllerr/implementation/fectingAllUsersController';
-import FetchAllUsersService from '../src/Servicess/implementation/fectingAllUsersService';
-import FetchAllUsersRepository from "../src/repositoriess/implementation/fectingAllDoctorsRepo";
+
 
 
 
@@ -146,7 +144,7 @@ grpcServer.addService(userProto.User.service, {
   fecthingUserDetailsThroughSockets:fetchAllUsersController.fecthingUserDetails_ThroughSocket,
    blockingDoctor:UserBlockAndUnblockControllerr.blockDoctor
 });
-// FetchDoctorDashBoardData
+// UpdateDoctorStatusAfterAdminApprove
 
 console.log('Services added to gRPC server');
 

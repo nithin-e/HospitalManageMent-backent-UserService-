@@ -28,7 +28,12 @@ import { DoctorFormData } from "../../allTypes/types";
   
 
                              
-  export interface IapplyDoctorRepository {
-    apply_For_doctorRepo(doctorData: DoctorFormData): Promise<DoctorApplicationResponse>;
-    UpdateDctorStatus__AfterAdminApprove__doctorRepo(email: string): Promise<StatusUpdateResponse>;
-  }
+  // export interface IapplyDoctorRepository {
+  //   apply_For_doctorRepo(doctorData: DoctorFormData): Promise<DoctorApplicationResponse>;
+  //   UpdateDctorStatus__AfterAdminApprove__doctorRepo(email: string): Promise<StatusUpdateResponse>;
+  // }
+
+  export interface IDoctorRepository {
+  applyForDoctor(doctorData: DoctorFormData): Promise<DoctorApplicationResponse>;
+  updateDoctorStatusAfterAdminApproval(email: string): Promise<StatusUpdateResponse>;
+}

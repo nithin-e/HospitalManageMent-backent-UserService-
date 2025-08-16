@@ -1,4 +1,4 @@
-import { User } from "../entities/user_schema"; // Interface for User model
+import { User } from "../entities/user_schema";
 
 export interface UserDTO {
   id: string;

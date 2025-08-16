@@ -4,6 +4,7 @@ import { Doctor } from "../allTypes/types";
 
 
 
+
 const doctorSchema = new mongoose.Schema<Doctor>({
   firstName: String,
   lastName: String,

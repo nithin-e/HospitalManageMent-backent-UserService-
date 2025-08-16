@@ -1,12 +1,11 @@
 import { DoctorApplicationResult, DoctorFormData } from "../../allTypes/types";
 import { DoctorDb } from "../../entities/doctor_schema";
 import {User} from '../../entities/user_schema'
-import { IapplyDoctorRepository } from "../interface/applyDoctorRepoInterFace";
+import {  IDoctorRepository } from "../interface/applyDoctorRepoInterFace";
 
 
-
-export default class ApplyDoctorRepository implements IapplyDoctorRepository{
-  apply_For_doctorRepo = async (doctorData:DoctorFormData): Promise<DoctorApplicationResult> => {
+export default class ApplyDoctorRepository implements IDoctorRepository{
+  applyForDoctor = async (doctorData:DoctorFormData): Promise<DoctorApplicationResult> => {
     try {
 
       console.log('inside the repo1', doctorData);
@@ -17,13 +16,10 @@ export default class ApplyDoctorRepository implements IapplyDoctorRepository{
           doctor: {} as any
         };
       }
-  
-      
+
       const existingDoctor = await DoctorDb.findOne({ email: doctorData.email });
-      
-    
+
       const currentUser = await User.findById(doctorData.userId);
-      
       
       if (existingDoctor) {
         return { 
@@ -42,9 +38,6 @@ export default class ApplyDoctorRepository implements IapplyDoctorRepository{
 
         };
       }
-  
-      
-  
  
       const newDoctor = new DoctorDb({
         firstName: doctorData.firstName,
@@ -66,7 +59,6 @@ export default class ApplyDoctorRepository implements IapplyDoctorRepository{
       const savedDoctor = await newDoctor.save();
       console.log('Doctor saved successfully:', savedDoctor._id);
   
-      // Return the saved doctor data
       return {
         success: true,
         message: "Application submitted successfully. We'll review your details soon.",
@@ -84,8 +76,6 @@ export default class ApplyDoctorRepository implements IapplyDoctorRepository{
       };
     } catch (error) {
       console.error('Error saving doctor:', error);
-  
-      // Handle duplicate email error from MongoDB
       if ((error as any).code === 11000) {
         return {
           success: false,
@@ -106,11 +96,8 @@ export default class ApplyDoctorRepository implements IapplyDoctorRepository{
 
 
 
-  UpdateDctorStatus__AfterAdminApprove__doctorRepo = async (email: string): Promise<any> => {
+  updateDoctorStatusAfterAdminApproval = async (email: string): Promise<any> => {
     try {
- 
-      
-      
       const updatedDoctor = await DoctorDb.findOneAndUpdate(
         { email: email },
         { status: "proccesing" },  

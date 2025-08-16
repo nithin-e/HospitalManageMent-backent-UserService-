@@ -1,5 +1,8 @@
+import { BaseRepository } from '../../../../shared/repositories/baseRepository';
 import {User} from '../../entities/user_schema'
 import { IfectingAllUsersRepository } from '../interface/fectingAllUsersRepoInterFace';
+import type { User as UserType } from "../../entities/user_schema";
+
 
 
 
@@ -19,12 +22,17 @@ interface SearchParams {
   limit: number;
 }
 
-export default class FetchAllDataRepository implements IfectingAllUsersRepository{
+export default class FetchAllDataRepository  extends BaseRepository<UserType> implements IfectingAllUsersRepository{
     
   
+  constructor() {
+      super(User); 
+    }
+
+
   async fetchingAllUserData() : Promise<RepositoryUsersResponse>{
     try {
-      const users = await User.find({});
+      const users = await this.find({});
       return {
         data: users
       };
@@ -39,7 +47,7 @@ export default class FetchAllDataRepository implements IfectingAllUsersRepositor
         console.log('Fetching user with email in repo:', email);
         
         // Query the database to get user by email
-        const user = await User.findOne({ email: email });
+        const user = await this.findOne(email );
         
         if (!user) {
           throw new Error('User not found');
