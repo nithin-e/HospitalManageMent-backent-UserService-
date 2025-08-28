@@ -5,30 +5,30 @@ import "dotenv/config";
 import connectDB from "./config/mongo";
 
 // Import controllers
-import applyDoctorControllerr from './Controllerr/implementation/applyDoctorController';
-import fetchAllDoctorr from '../src/Controllerr/implementation/fectingAllDoctorsController';
-import fetchAllUsersControllerr from '../src/Controllerr/implementation/fectingAllUsersController';
-import updateDoctorAndUserAfterPaymentControllerr from '../src/Controllerr/implementation/UpdateDoctorAndUserAfterPaymentCon'
-import loginControllerr from '../src/Controllerr/implementation/loginController';
-import registrationControllerr from '../src/Controllerr/implementation/registretionController'
+import applyDoctorControllerr from './Controller/implementation/applyDoctorController';
+import fetchAllDoctorr from './Controller/implementation/fectingAllDoctorsController';
+import fetchAllUsersControllerr from './Controller/implementation/fectingAllUsersController';
+import updateDoctorAndUserAfterPaymentController from './Controller/implementation/updateDoctorAndUserAfterPayment.controller'
+import loginControllerr from './Controller/implementation/loginController';
+import registrationControllerr from './Controller/implementation/registretionController'
 // import userBlockAndUnblockControllerr from '../src/Controllerr/implementation/UserBlockAndUnblockController'
 
 //import services
-import applyDoctorService from '../src/Servicess/implementation/applyDoctorService';
-import fetchAllDoctorService from '../src/Servicess/implementation/fectingAllDoctorsService';
-import fetchAllUserService from '../src/Servicess/implementation/fectingAllUsersService';
-import updateDoctorAndUserAfterPaymentService from '../src/Servicess/implementation/UpdateDoctorAndUserAfterPaymentService'
-import loginService from "../src/Servicess/implementation/loginService"
-import registretionService from '../src/Servicess/implementation/registretionService'
+import applyDoctorService from './Services/implementation/applyDoctorService';
+import fetchAllDoctorService from './Services/implementation/fectingAllDoctorsService';
+import fetchAllUserService from './Services/implementation/fectingAllUsersService';
+ import updateDoctorAndUserAfterPaymentService from './Services/implementation/updateDoctorAndUserAfterPayment.service'
+import loginService from "./Services/implementation/loginService"
+import registretionService from './Services/implementation/registretionService'
 // import userBlockAndUnblockService from '../src/Servicess/implementation/UserBlockAndUnblockService'
 
 //import repository
-import applyDoctorRepo from "../src/repositoriess/implementation/applyDoctorRepo"
-import fetchAllDoctorRepo from "../src/repositoriess/implementation/fectingAllDoctorsRepo"
-import fetchAllUserRepo from "../src/repositoriess/implementation/fectingAllUsersRepo"
-import updateDoctorAndUserAfterPaymentRepo from '../src/repositoriess/implementation/UpdateDoctorAndUserAfterPaymentRepo'
-import loginRepo from "../src/repositoriess/implementation/loginRepo"
-import registretionRepo from './repositoriess/implementation/registretionRepo'
+import applyDoctorRepo from "./repositories/implementation/applyDoctorRepo"
+import fetchAllDoctorRepo from "./repositories/implementation/fectingAllDoctorsRepo"
+import fetchAllUserRepo from "./repositories/implementation/fectingAllUsersRepo"
+import updateDoctorAndUserAfterPaymentRepo from './repositories/implementation/updateDoctorAndUserAfterPayment.repository'
+import loginRepo from "./repositories/implementation/loginRepo"
+import registretionRepo from './repositories/implementation/registretionRepo'
 // import userBlockAndUnblockRepo from './repositoriess/implementation/UserBlockAndUnblockRepo'
 
 
@@ -41,22 +41,22 @@ import registretionRepo from './repositoriess/implementation/registretionRepo'
 //login user
 const LoginRepo=new loginRepo()
 const LoginService=new loginService(LoginRepo)
-const LoginControllerr=new loginControllerr(LoginService)
+const LoginController=new loginControllerr(LoginService)
 
 //registretion 
 const RegistretionRepo=new registretionRepo()
 const RegistretionService=new registretionService(RegistretionRepo)
-const RegistrationControllerr=new registrationControllerr(RegistretionService)
+const RegistrationController=new registrationControllerr(RegistretionService)
 
 // applydoctor 
 const ApplyDoctorRepo = new applyDoctorRepo()
 const ApplyDoctorService = new applyDoctorService(ApplyDoctorRepo)
-const ApplyDoctorControllerr = new applyDoctorControllerr(ApplyDoctorService);
+const ApplyDoctorController = new applyDoctorControllerr(ApplyDoctorService);
 
 //fecting doctor
 const FetchAllDoctorRepo= new fetchAllDoctorRepo()
 const FetchAllDoctorService=new fetchAllDoctorService(FetchAllDoctorRepo)
-const FetchAllDoctorr =new fetchAllDoctorr(FetchAllDoctorService)
+const FetchAllDoctor =new fetchAllDoctorr(FetchAllDoctorService)
 
 //fecting User
 const FetchAllUserRepo= new fetchAllUserRepo()
@@ -68,23 +68,18 @@ const fetchAllUsersController =new fetchAllUsersControllerr(FetchAllUserService)
 // UpdateDoctorAndUserAfterPayment
 const UpdateDoctorAndUserAfterPaymentRepo=new updateDoctorAndUserAfterPaymentRepo()
 const  UpdateDoctorAndUserAfterPaymentService = new updateDoctorAndUserAfterPaymentService(UpdateDoctorAndUserAfterPaymentRepo)
-const UpdateDoctorAndUserAfterPaymentControllerr = new updateDoctorAndUserAfterPaymentControllerr(UpdateDoctorAndUserAfterPaymentService)
-
-//userblockandunblock
-// const UserBlockAndUnblockRepo=new userBlockAndUnblockRepo()
-// const UserBlockAndUnblockService=new userBlockAndUnblockService(UserBlockAndUnblockRepo)
-// const UserBlockAndUnblockControllerr= new userBlockAndUnblockControllerr(UserBlockAndUnblockService)
+const UpdateDoctorAndUserAfterPaymentController = new updateDoctorAndUserAfterPaymentController(UpdateDoctorAndUserAfterPaymentService)
 
 
 // Fix import paths - ensure these files exist and are exported correctly
-import userBlockAndUnblockControllerr from './Controllerr/implementation/UserBlockAndUnblockController';
-import userBlockAndUnblockService from './Servicess/implementation/UserBlockAndUnblockService';
-import userBlockAndUnblockRepo from './repositoriess/implementation/UserBlockAndUnblockRepo';
+import userBlockAndUnblockController from './Controller/implementation/userBlockAndUnblock.controller';
+import userBlockAndUnblockService from './Services/implementation/userBlockAndUnblock.service';
+import userBlockAndUnblockRepo from './repositories/implementation/userBlockAndUnblock.repository';
 
 // userblockandunblock instantiation
 const UserBlockAndUnblockRepo = new userBlockAndUnblockRepo();
 const UserBlockAndUnblockService = new userBlockAndUnblockService(UserBlockAndUnblockRepo);
-const UserBlockAndUnblockControllerr = new userBlockAndUnblockControllerr(UserBlockAndUnblockService);
+const UserBlockAndUnblockController = new userBlockAndUnblockController(UserBlockAndUnblockService);
 
 // Connect to MongoDB
 console.log('Attempting to connect to MongoDB...');
@@ -124,27 +119,29 @@ console.log('gRPC server created');
 // Add gRPC services
 console.log('Adding services to gRPC server...');
 grpcServer.addService(userProto.User.service, {
-  Register: RegistrationControllerr.signup,
-  CheckUser: RegistrationControllerr.CheckUser,
-  LoginUser: LoginControllerr.login,
-  changingUserPassWord: LoginControllerr.ChangingUserPassword,
-  ResetPassword: LoginControllerr.ForgetPass,
-  FetchAllDoctors:FetchAllDoctorr.fetchAllDoctors,
-  UpdateDoctorStatusAfterAdminApprove:ApplyDoctorControllerr.UpdateDoctorStatusAfterAdminApprove,
-  UpdateDoctorStatusAndUserRole:UpdateDoctorAndUserAfterPaymentControllerr.UpdateDoctorAndUserAfterPayment,
-  DeleteDoctorAfterAdminReject:UpdateDoctorAndUserAfterPaymentControllerr.DeleteDoctorAfter__AdminReject,
-  FetchDoctorDashBoardData:FetchAllDoctorr.fetchingSingleDoctor,
-  ApplyDoctor :ApplyDoctorControllerr.applyForDoctor,
-  FetchAllUsers: fetchAllUsersController.fetchAllUser,
-  fectingUserProfileDatas:fetchAllUsersController.fetchingSingleUserData,
-  ChangingUserInfo: LoginControllerr.ChangingUserInfo,
-  SearchUsers:fetchAllUsersController.searchUserDebounce,
-  BlockUser: UserBlockAndUnblockControllerr.blockUser.bind(UserBlockAndUnblockControllerr),
-  UnblockUser: UserBlockAndUnblockControllerr.unblockUser.bind(UserBlockAndUnblockControllerr),
-  fecthingUserDetailsThroughSockets:fetchAllUsersController.fecthingUserDetails_ThroughSocket,
-   blockingDoctor:UserBlockAndUnblockControllerr.blockDoctor
+  Register: RegistrationController.signup,
+  CheckUser: RegistrationController.checkUser,
+  LoginUser: LoginController.login,
+  changingUserPassWord: LoginController.changeUserPassword,
+  ResetPassword: LoginController.forgotPassword,
+  FetchAllDoctors:FetchAllDoctor.getAllDoctors,
+  UpdateDoctorStatusAfterAdminApprove:ApplyDoctorController.UpdateDoctorStatusAfterAdminApprove,
+  HandleStripeWebhookUpdateUser:UpdateDoctorAndUserAfterPaymentController.handleStripeWebhookUpdateUser,
+//  HandleStripeWebhookUpdateUser: UpdateDoctorAndUserAfterPaymentController.handleStripeWebhookUpdateUser.bind(UpdateDoctorAndUserAfterPaymentController),
+  DeleteDoctorAfterAdminReject:UpdateDoctorAndUserAfterPaymentController.deleteDoctorAfterAdminReject,
+  FetchDoctorDashBoardData:FetchAllDoctor.getDoctorByEmail,
+  ApplyDoctor :ApplyDoctorController.applyForDoctor,
+  FetchAllUsers: fetchAllUsersController.getAllUsers,
+  fectingUserProfileDatas:fetchAllUsersController.getUserByEmail,
+  ChangingUserInfo: LoginController.updateUserInformation,
+  SearchUsers:fetchAllUsersController.searchUsers,
+  SearchDoctors:fetchAllUsersController.searchDoctors,
+  BlockUser: UserBlockAndUnblockController.blockUser.bind(UserBlockAndUnblockController),
+  UnblockUser: UserBlockAndUnblockController.unblockUser.bind(UserBlockAndUnblockController),
+  fecthingUserDetailsThroughSockets:fetchAllUsersController.getUserDetailsViaSocket,
+  blockingDoctor:UserBlockAndUnblockController.blockDoctor
 });
-// UpdateDoctorStatusAfterAdminApprove
+// HandleStripeWebhookUpdateUser
 
 console.log('Services added to gRPC server');
 

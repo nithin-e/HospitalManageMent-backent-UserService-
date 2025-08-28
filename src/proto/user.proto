@@ -18,9 +18,7 @@ service User {
 
   rpc FetchAllDoctors(fectAllDoctorsRequest) returns (fectAllDoctorsResponse){}
 
-  rpc UpdateDoctorStatusAfterAdminApprove(UpdateDoctorStatusAfterAdminApproveRequest) returns (UpdateDoctorStatusAfterAdminApproveResponse){}
 
-  rpc UpdateDoctorStatusAndUserRole(UpdateDoctorStatusAndUserRoleRequest) returns (UpdateDoctorStatusAndUserRoleResponse) {}
 
   rpc DeleteDoctorAfterAdminReject (DeleteDoctorRequest) returns (DeleteDoctorResponse){}
 
@@ -34,6 +32,8 @@ service User {
 
   rpc SearchUsers(SearchUsersRequest) returns (SearchUsersResponse){}
 
+  rpc SearchDoctors(SearchDoctorsRequest) returns (SearchDoctorsResponse){}
+
   rpc BlockUser(BlockUserRequest) returns (BlockUserResponse){}
 
   rpc UnblockUser(UnblockUserRequest) returns (UnblockUserResponse){}
@@ -42,7 +42,24 @@ service User {
 
   rpc blockingDoctor (blockingDoctorRequest) returns (blockingDoctorResponse) {}
 
+ rpc HandleStripeWebhookUpdateUser(StripeWebhookRequest) returns (StripeWebhookResponse) {}
+
+
 }
+
+
+
+message StripeWebhookRequest {
+  string eventType = 1;
+  string eventData = 2;
+}
+
+message StripeWebhookResponse {
+  bool success = 1;
+  string message = 2;
+  string email = 3;
+}
+
 
 message blockingDoctorRequest {
 string email = 1 ;
@@ -117,11 +134,33 @@ message Userr {
 
 message SearchUsersRequest {
   string searchQuery = 1;
+  string sortBy = 2 ;
+  string sortDirection =3 ;
+  int32 page = 4 ;
+  int32 limit = 5;
   
 }
 
 message SearchUsersResponse {
   repeated Userr users = 1;
+  int32 totalCount = 2;
+  int32 activeCount = 3;
+  int32 blockedCount = 4;
+  bool success = 5;
+  string message = 6;
+}
+
+message SearchDoctorsRequest {
+  string searchQuery = 1;
+  string sortBy = 2 ;
+  string sortDirection =3 ;
+  int32 page = 4 ;
+  int32 limit = 5;
+  
+}
+
+message SearchDoctorsResponse {
+  repeated Doctor doctors = 1;
   int32 totalCount = 2;
   int32 activeCount = 3;
   int32 blockedCount = 4;
@@ -182,23 +221,11 @@ Doctor doctor = 1;
 bool success = 1;
  }
 
-message UpdateDoctorStatusAndUserRoleRequest {
-   string email = 1;
-}
-
-message UpdateDoctorStatusAndUserRoleResponse {
- bool success = 1;
-}
 
 
 
-message UpdateDoctorStatusAfterAdminApproveRequest {
-  string email = 1;
-}
 
-message UpdateDoctorStatusAfterAdminApproveResponse {
-  bool success = 1;
-}
+
 
 
 
