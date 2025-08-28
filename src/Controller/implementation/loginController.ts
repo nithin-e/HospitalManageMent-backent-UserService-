@@ -22,25 +22,32 @@ phoneNumber:string
 
 
 export default class LoginController   {
-    private readonly LoginService: ILoginService;
+ private readonly _loginService: ILoginService;
 
-    constructor(LoginService: ILoginService) {
-        this.LoginService = LoginService;
-    }
+  constructor(loginService: ILoginService) {
+    this._loginService = loginService;
+  }
 
     login  = async (
         call: ServerUnaryCall<LoginUserRequest, LoginUserResponse>,
         callback: sendUnaryData<LoginUserResponse>
     ): Promise<void> => {
         try {
-            const { email, password } = call.request;
+
+            console.log('check this goole ...............................user credential',call.request)
+               
+            const { email, password,google_id,name} = call.request;
+
+
             
             const loginData: LoginUserRequest = {
                 email,
-                password
+                password,
+                google_id,
+                name
             };
     
-            const response = await this.LoginService.userLogin(loginData) as LoginResponse;
+            const response = await this._loginService.userLogin(loginData) as LoginResponse;
     
             console.log('Login successful:', response);
     
@@ -99,7 +106,7 @@ export default class LoginController   {
             }
             
             const loginData = { email, newPassword }; // Now newPassword is guaranteed to be string
-            const response = await this.LoginService.forgotPassword(loginData);
+            const response = await this._loginService.forgotPassword(loginData);
             
             callback(null, response);
         } catch (error) {
@@ -119,7 +126,7 @@ export default class LoginController   {
             const { email, password } = call.request;
             
             // Call the service layer function
-            const response = await this.LoginService.changeUserPassword({
+            const response = await this._loginService.changeUserPassword({
                 email: email,
                 password: password
             });
@@ -140,7 +147,7 @@ export default class LoginController   {
         try {
             const { email, name, phoneNumber } = call.request;
     
-            const response = await this.LoginService.updateUserInformation({
+            const response = await this._loginService.updateUserInformation({
                 email: email,
                 name: name,
                 phoneNumber: phoneNumber

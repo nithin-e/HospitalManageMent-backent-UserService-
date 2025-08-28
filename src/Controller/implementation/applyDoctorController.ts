@@ -13,12 +13,11 @@ type GRPCCallback<T> = grpc.sendUnaryData<T>;
 
 
 export default class  ApplyDoctorController  {
-  private applyDoctorService: IDoctorService;
+ private readonly _applyDoctorService: IDoctorService;
 
-  constructor(ApplyDoctorService:IDoctorService) {
-    this.applyDoctorService = ApplyDoctorService; 
+  constructor(applyDoctorService: IDoctorService) {
+    this._applyDoctorService = applyDoctorService; 
   }
-
   
 
   applyForDoctor = async (call: ApplyDoctorCall,  callback: GRPCCallback<ApplyDoctorResponse>) => {
@@ -40,7 +39,7 @@ export default class  ApplyDoctorController  {
       documentUrls: call.request.document_urls, 
     }  
     try {
-      const response = await this.applyDoctorService.applyForDoctor(doctorData);
+      const response = await this._applyDoctorService.applyForDoctor(doctorData);
       const grpcResponse: ApplyDoctorResponse = {
         success: true, 
         id: response.id,
@@ -72,7 +71,7 @@ export default class  ApplyDoctorController  {
   
     const {email}=call.request
     try {
-      const response = await this.applyDoctorService.updateDoctorStatusAfterAdminApproval(email);
+      const response = await this._applyDoctorService.updateDoctorStatusAfterAdminApproval(email);
 
       callback(null, response);
     } catch (error) {

@@ -1,25 +1,24 @@
 import { IUserBlockAndUnblockService } from "../interface/userBlockAndUnblock.service.interface"
-// import UserBlockAndUnblockRepository from "../../repositories/implementation/userBlockAndUnblockRepo"
-import { UserResponse } from "../../entities/user_interface"
+
 import { IUserBlockAndUnblockRepository } from "../../repositories/interface/userBlockAndUnblock.repository.interface"
-// import { IUserBlockAndUnblockRepository } from "../../repositories/interface/"
 
 
 
 
 export default class  UserBlockService  implements IUserBlockAndUnblockService{
 
-    private userBlockAndUnblockRepo:IUserBlockAndUnblockRepository
-    constructor(userBlockAndUnblockRepo:IUserBlockAndUnblockRepository) {
-        this.userBlockAndUnblockRepo=userBlockAndUnblockRepo
-    }
+  private _userBlockAndUnblockRepo: IUserBlockAndUnblockRepository;
+
+  constructor(userBlockAndUnblockRepo: IUserBlockAndUnblockRepository) {
+    this._userBlockAndUnblockRepo = userBlockAndUnblockRepo;
+  }
   
 
     blockUser=async (userId:string):Promise <boolean>=>{
         try {
 
             console.log('id kittando nokke inside the usecase',typeof userId)
-          const response= await this.userBlockAndUnblockRepo.blockUser(userId)
+          const response= await this._userBlockAndUnblockRepo.blockUser(userId)
            console.log('showing responce from usecase',response)
            
           return response;
@@ -34,7 +33,7 @@ export default class  UserBlockService  implements IUserBlockAndUnblockService{
     unblockUser=async (userId:string):Promise<boolean>=>{
         try {
 
-          const response= await this.userBlockAndUnblockRepo.unblockUser(userId)
+          const response= await this._userBlockAndUnblockRepo.unblockUser(userId)
            
            
           return response;
@@ -48,7 +47,7 @@ export default class  UserBlockService  implements IUserBlockAndUnblockService{
 
    blockDoctor = async (  email: string ):Promise <boolean> => {
     try {
-        const response = await this.userBlockAndUnblockRepo.blockDoctor(email);
+        const response = await this._userBlockAndUnblockRepo.blockDoctor(email);
         return response;
     } catch (error) {
         console.error("Error in login use case:", error);

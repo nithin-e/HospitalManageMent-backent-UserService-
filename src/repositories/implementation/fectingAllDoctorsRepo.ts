@@ -7,17 +7,7 @@ import {  RepositoryDoctorsResponse, RepositorySingleDoctorResponsee } from '../
 
 
 
-// export default class FetchAllDoctorRepository
-// extends BaseRepository<Document>implements IfectingAllDoctorsInterFace {
-
-// constructor() {
-//     super(DoctorDb )
-//   }
-
-
 export default class FetchAllDoctorRepository implements IDoctorRepository {
-
- 
 
 
     async getAllDoctors(): Promise<RepositoryDoctorsResponse> {

@@ -5,15 +5,15 @@ import { mapDoctorToDTO } from "../../dto/doctor.mapper";
 import { IDoctorRepository } from "../../repositories/interface/fectingAllDoctorsInterFace";
 
 export default class FetchDataUseCase implements IDoctorService {
-    private readonly fetchAllDoctorRepo: IDoctorRepository;
+  private readonly _doctorRepo: IDoctorRepository;
 
-    constructor(fetchAllDoctorRepo: IDoctorRepository) {
-        this.fetchAllDoctorRepo = fetchAllDoctorRepo;
-    }
+  constructor(doctorRepo: IDoctorRepository) {
+    this._doctorRepo = doctorRepo;
+  }
 
     getAllDoctors = async (): Promise<RepositoryDoctorsResponse> => {
         try {
-            const response = await this.fetchAllDoctorRepo.getAllDoctors();
+            const response = await this._doctorRepo.getAllDoctors();
 
       
             const doctorDtos = response.data.map(mapDoctorToDTO);
@@ -33,7 +33,7 @@ export default class FetchDataUseCase implements IDoctorService {
     getDoctorByEmail = async (email: string): Promise<RepositorySingleDoctorResponsee> => {
         try {
           
-            const response = await this.fetchAllDoctorRepo.getDoctorByEmail(email);
+            const response = await this._doctorRepo.getDoctorByEmail(email);
             console.log('check this responce while fecting onedoctor', response);
 
             const doctorDtos = response.doctor?mapDoctorToDTO(response.doctor):null;

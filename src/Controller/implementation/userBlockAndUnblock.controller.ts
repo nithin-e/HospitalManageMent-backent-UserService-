@@ -12,12 +12,11 @@ export interface BlockingUser {
 
 
 export default class UserBlockController   {
-  private UserBlockAndUnblockService: IUserBlockAndUnblockService;
-  
-  constructor(UserBlockAndUnblockService: IUserBlockAndUnblockService) {
-    this.UserBlockAndUnblockService = UserBlockAndUnblockService;
-  }
+   private readonly _userBlockAndUnblockService: IUserBlockAndUnblockService;
 
+  constructor(userBlockAndUnblockService: IUserBlockAndUnblockService) {
+    this._userBlockAndUnblockService = userBlockAndUnblockService;
+  }
   async blockUser(
     call: ServerUnaryCall<BlockingUser, boolean>, 
     callback: sendUnaryData<UserResponse>
@@ -29,15 +28,15 @@ export default class UserBlockController   {
       
       
       // Add null check
-      if (!this.UserBlockAndUnblockService) {
+      if (!this._userBlockAndUnblockService) {
         throw new Error('UserBlockAndUnblockService is not initialized');
       }
       
-      if (typeof this.UserBlockAndUnblockService.blockDoctor !== 'function') {
+      if (typeof this._userBlockAndUnblockService.blockDoctor !== 'function') {
         throw new Error('BlockingUser method does not exist on service');
       }
       
-      const result = await this.UserBlockAndUnblockService.blockDoctor(userId);
+      const result = await this._userBlockAndUnblockService.blockDoctor(userId);
       console.log('Block result:', result);
       
       callback(null, { 
@@ -45,12 +44,9 @@ export default class UserBlockController   {
         message: 'User blocked successfully' 
       });
       
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error blocking user:', error);
-      callback(null, { 
-        success: false, 
-        message: error.message || 'Failed to block user' 
-      });
+      
     }
   }
 
@@ -63,23 +59,18 @@ export default class UserBlockController   {
       console.log('check this call request',call.request)
       const {id:userId } = call.request;
       
-      const result = await this.UserBlockAndUnblockService.unblockUser(userId);
+      const result = await this._userBlockAndUnblockService.unblockUser(userId);
       
 
       callback(null, { 
         success: true, 
         message: 'User unBlocked successfully' 
       });
-      // callback(null, { 
-      //   result
-      // });
       
-    } catch (error: any) {
+      
+    } catch (error) {
       console.error('Error unblocking user:', error);
-      callback(null, { 
-        success: false, 
-        message: error.message || 'Failed to unblock user' 
-      });
+     
     }
   }
 
@@ -89,7 +80,7 @@ export default class UserBlockController   {
       console.log('check this call request',call.request)
       const {email}=call.request;
 
-      const response =await this.UserBlockAndUnblockService.blockDoctor(email)
+      const response =await this._userBlockAndUnblockService.blockDoctor(email)
       console.log('check here ',response)
       
       callback(null,{success:response} );

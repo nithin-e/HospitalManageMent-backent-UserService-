@@ -1,29 +1,26 @@
 import {  IUserService } from "../interface/fectingAllUsersServiceInterFace";
-import FetchAllDataRepository from "../../repositories/implementation/fectingAllUsersRepo"
 import { mapUserToDTO, UserDTO } from "../../dto/user.dto";
 import {  IUserRepository } from "../../repositories/interface/fectingAllUsersRepoInterFace";
+import { SearchDoctorResponse } from "../../repositories/implementation/fectingAllUsersRepo";
+import { SearchParams } from "../../allTypes/types";
 
 
 
-export interface SearchParams {
-  searchQuery: string; 
-  sortBy: string;
-  sortDirection: any;
-  role:any;
-  page: number;
-  limit: number;
-}
+
+
 
 
 export default class fetchDataService  implements IUserService{
-    private fetchAllDataRepo:IUserRepository;
-constructor(fetchAllDataRepo:IUserRepository){
-     this.fetchAllDataRepo=fetchAllDataRepo;
-}
+ private readonly _repo: IUserRepository;
+
+  constructor(userRepo: IUserRepository) {
+    this._repo = userRepo;
+  }
+
 
 getAllUsers=async (): Promise<UserDTO[]>=>{
     try {
-     const response= await this.fetchAllDataRepo.getAllUsers()
+     const response= await this._repo.getAllUsers()
      const userDTOs = response.data.map(mapUserToDTO);
       return userDTOs;
 
@@ -36,7 +33,7 @@ getAllUsers=async (): Promise<UserDTO[]>=>{
 
 getUserByEmail = async (email: string):Promise<UserDTO> => {
     try {
-      const response = await this.fetchAllDataRepo.getUserByEmail(email);
+      const response = await this._repo.getUserByEmail(email);
       const userDTO = mapUserToDTO(response);
     return userDTO;
     } catch (error) {
@@ -48,7 +45,7 @@ getUserByEmail = async (email: string):Promise<UserDTO> => {
 // fecthingUserDetails__ThroughSocket
 getUserDetailsViaSocket = async (patientId: string): Promise<UserDTO> => {
   try {
-    const user = await this.fetchAllDataRepo.getUserDetailsViaSocket(patientId);
+    const user = await this._repo.getUserDetailsViaSocket(patientId);
     
     if (!user) {
       throw new Error(`User not found with ID: ${patientId}`);
@@ -68,8 +65,8 @@ getUserDetailsViaSocket = async (patientId: string): Promise<UserDTO> => {
 searchUsers = async (
   searchQuery: string = '',
   sortBy: string = 'createdAt',
-  sortDirection: string = 'desc',
-  role: string = '',
+  sortDirection: 'asc' | 'desc',
+ role: 'user' | 'admin' | 'doctor',
   page: number = 1,
   limit: number = 50
 ) => {
@@ -77,13 +74,13 @@ searchUsers = async (
     const params: SearchParams = {
       searchQuery: searchQuery || '', 
       sortBy: sortBy || 'createdAt',
-      sortDirection: sortDirection || 'desc',
+      sortDirection: sortDirection|| 'desc',
       role: role || '',
       page: page || 1,
       limit: limit || 50
     };
 
-    const response = await this.fetchAllDataRepo.searchUsers(params);
+    const response = await this._repo.searchUsers(params);
     return {
       users: response.users,
       totalCount: response.totalCount,
@@ -100,4 +97,36 @@ searchUsers = async (
 
 
 
+ searchDoctors = async (
+    searchQuery: string = '',
+    sortBy: string = 'createdAt',
+    sortDirection: "asc" | "desc" = 'desc',
+    page: number = 1,
+    limit: number = 50,
+    role:string
+  ): Promise<SearchDoctorResponse> => {
+    try {
+
+      
+      const params = {
+        searchQuery: searchQuery || '', 
+        sortBy: sortBy || 'createdAt',
+        sortDirection: sortDirection || 'desc',
+      
+        page: page || 1,
+        limit: limit || 50,
+        role: role || '',
+      };
+
+      const response = await this._repo.searchDoctors(params);
+      console.log('check this responce in service layer',response)
+      return response; // Return the response directly
+    } catch (error) {
+      console.error("Error in search doctors service:", error);
+      throw error;
+    }
+  }
 }
+
+
+

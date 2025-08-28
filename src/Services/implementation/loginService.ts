@@ -17,17 +17,17 @@ type LoginResponse = {
 };
 
 export default class LoginService implements ILoginService{
-    private loginRepo: ILoginRepository;
-  
-    constructor(loginRepo: ILoginRepository) {
-      this.loginRepo = loginRepo;
-    }
-  
-    userLogin = async (loginData: { email: string; password: string }): Promise<LoginResponse> => {
+ private _loginRepo: ILoginRepository;
+
+  constructor(loginRepo: ILoginRepository) {
+    this._loginRepo = loginRepo;
+  }
+
+    userLogin = async (loginData: { email: string; password: string,name?:string,google_id:string }): Promise<LoginResponse> => {
       try {
         console.log('.login usecase...', loginData);
         
-        const response = await this.loginRepo.checkUserExists(loginData);
+        const response = await this._loginRepo.checkUserExists(loginData);
         if (!response) {
           throw new Error("No user data returned from repository")
         }
@@ -81,7 +81,7 @@ export default class LoginService implements ILoginService{
        
        
         
-        const response = await this.loginRepo.setUpForgotPassword({
+        const response = await this._loginRepo.setUpForgotPassword({
           email: loginData.email,
           newPassword: hashedPassword
         });
@@ -106,7 +106,7 @@ export default class LoginService implements ILoginService{
           console.log('Password hashed successfully');
           
           // Call the repository function
-          const response = await this.loginRepo.changePassword({
+          const response = await this._loginRepo.changePassword({
               email: loginData.email,
               newPassword: hashedPassword
           });
@@ -128,7 +128,7 @@ export default class LoginService implements ILoginService{
 }):Promise<UserResponse> => {
   
     try {
-        const response = await this.loginRepo.updateUserInformation({
+        const response = await this._loginRepo.updateUserInformation({
             email: loginData.email,
             name: loginData.name,
             phoneNumber: loginData.phoneNumber

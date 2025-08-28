@@ -164,6 +164,7 @@ export interface SearchParams {
     role: 'user' | 'admin' | 'doctor';
     page: number;
     limit: number;
+  
 }
 
 
@@ -437,7 +438,7 @@ export interface SingleDoctorRequest {
 
 // ===== USER AND AUTHENTICATION TYPES =====
 export interface User {
-  _id: any; // MongoDB ObjectId
+  _id: ObjectId; // MongoDB ObjectId
   name: string;
   email: string;
   password?: string;
@@ -622,19 +623,19 @@ export interface UserData {
 // Service response type (what your service layer returns)
 export interface LoginServiceResponse {
   user?: UserData;
-  access_token?: any;
-  refresh_token?: any;
+  access_token?: string;
+  refresh_token?: string;
   message?: string;
 }
 
 
-export interface GrpcCall<T = any> {
+export interface GrpcCall<T = unknown> {
   request: T;
-  metadata?: any;
+  metadata?: string;
   cancelled?: boolean;
 }
 
-export interface GrpcCallback<T = any> {
+export interface GrpcCallback<T > {
   (error: GrpcError | null, response?: T): void;
 }
 

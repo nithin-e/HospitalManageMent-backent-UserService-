@@ -1,7 +1,7 @@
 import { SearchParams } from "../../allTypes/types";
 import { UserDTO } from "../../dto/user.dto";
 import { User } from "../../entities/user_schema";
-import { RepositoryUsersResponse } from "../implementation/fectingAllUsersRepo";
+import { RepositoryUsersResponse, SearchDoctorResponse, SearchParamss } from "../implementation/fectingAllUsersRepo";
 
 export interface SearchUserResponse {
   users: UserDTO[];
@@ -12,6 +12,8 @@ export interface SearchUserResponse {
   message?: string;
 }
 
+
+
 export interface IUserRepository {
   getAllUsers(): Promise<RepositoryUsersResponse>;
 
@@ -20,4 +22,6 @@ export interface IUserRepository {
   searchUsers(params: SearchParams): Promise<SearchUserResponse>;
 
   getUserDetailsViaSocket(patientId: string): Promise<User>;
+
+searchDoctors(params: SearchParamss): Promise<SearchDoctorResponse>;
 }

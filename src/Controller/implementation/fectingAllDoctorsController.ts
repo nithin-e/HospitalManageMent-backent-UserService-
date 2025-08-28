@@ -10,10 +10,10 @@ import {
 import { IDoctorService } from '../../Services/interface/fectingAllDoctorsInterFace';
 
 export default class DoctorController  {
-    private readonly FetchDoctorService: IDoctorService;
+  private readonly _doctorService: IDoctorService;
 
-    constructor(FetchDoctorService: IDoctorService) {
-        this.FetchDoctorService = FetchDoctorService;
+    constructor(doctorService: IDoctorService) {
+        this._doctorService = doctorService;
     }
 
     getAllDoctors = async (
@@ -21,7 +21,7 @@ export default class DoctorController  {
         callback: sendUnaryData<DoctorsResponse>
     ): Promise<void> => {
         try {
-            const doctorsResponse = await this.FetchDoctorService.getAllDoctors();
+            const doctorsResponse = await this._doctorService.getAllDoctors();
             const doctors: Doctor[] = doctorsResponse.data;
             
             const response: DoctorsResponse = {
@@ -76,7 +76,7 @@ export default class DoctorController  {
                 return callback(grpcError, null);
             }
 
-            const doctorResponse = await this.FetchDoctorService.getDoctorByEmail(email);
+            const doctorResponse = await this._doctorService.getDoctorByEmail(email);
 
             if (!doctorResponse.doctor) {
                 const grpcError: ServiceError = {

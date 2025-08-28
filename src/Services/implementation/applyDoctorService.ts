@@ -7,11 +7,11 @@ import {  IDoctorService } from "../interface/applyDoctorServicesInterface";
 
 export default class ApplyDoctorService  implements IDoctorService {
 
-    private applyDoctorRepo: IDoctorRepository;
-    
-    constructor(applyDoctorRepo: IDoctorRepository) {
-      this.applyDoctorRepo= applyDoctorRepo
-    }
+  private readonly _applyDoctorRepo: IDoctorRepository;
+
+  constructor(applyDoctorRepo: IDoctorRepository) {
+    this._applyDoctorRepo = applyDoctorRepo;
+  }
     
     applyForDoctor = async (doctorData:DoctorFormData ): Promise<DoctorApplicationResponse> => {
       try {
@@ -54,7 +54,7 @@ export default class ApplyDoctorService  implements IDoctorService {
         };
     
 
-        const response = await this.applyDoctorRepo.applyForDoctor(newDoctorData);
+        const response = await this._applyDoctorRepo.applyForDoctor(newDoctorData);
 
         if (response.success && response.doctor) {
           return {
@@ -80,7 +80,7 @@ export default class ApplyDoctorService  implements IDoctorService {
       try {
       
       
-        const response = await this.applyDoctorRepo.updateDoctorStatusAfterAdminApproval(email);
+        const response = await this._applyDoctorRepo.updateDoctorStatusAfterAdminApproval(email);
     
         return response;
       } catch (error) {

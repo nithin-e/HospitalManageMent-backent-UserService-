@@ -6,7 +6,7 @@ import { UserResponse } from "../../entities/user_interface";
 
 export default class DoctorPaymentRepository  implements IDoctorPaymentRepository {
 
-  updateDoctorAndUserAfterPayment = async (email: string):Promise<UserResponse> => {
+  handleStripeWebhookUpdateUser = async (email: string):Promise<UserResponse> => {
     try {
       console.log('Processing payment update for email inside repo:', email);
 

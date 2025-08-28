@@ -21,4 +21,4 @@ const doctorSchema = new mongoose.Schema<Doctor>({
   isActive: { type: Boolean, default: true },
 });
 
-export const DoctorDb = mongoose.model<Doctor>("Doctor", doctorSchema);
+export const DoctorDb = mongoose.model<Doctor>("Doctor", doctorSchema)

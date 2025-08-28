@@ -126,7 +126,8 @@ grpcServer.addService(userProto.User.service, {
   ResetPassword: LoginController.forgotPassword,
   FetchAllDoctors:FetchAllDoctor.getAllDoctors,
   UpdateDoctorStatusAfterAdminApprove:ApplyDoctorController.UpdateDoctorStatusAfterAdminApprove,
-  UpdateDoctorStatusAndUserRole:UpdateDoctorAndUserAfterPaymentController.updateDoctorAndUserAfterPayment,
+  HandleStripeWebhookUpdateUser:UpdateDoctorAndUserAfterPaymentController.handleStripeWebhookUpdateUser,
+//  HandleStripeWebhookUpdateUser: UpdateDoctorAndUserAfterPaymentController.handleStripeWebhookUpdateUser.bind(UpdateDoctorAndUserAfterPaymentController),
   DeleteDoctorAfterAdminReject:UpdateDoctorAndUserAfterPaymentController.deleteDoctorAfterAdminReject,
   FetchDoctorDashBoardData:FetchAllDoctor.getDoctorByEmail,
   ApplyDoctor :ApplyDoctorController.applyForDoctor,
@@ -134,12 +135,13 @@ grpcServer.addService(userProto.User.service, {
   fectingUserProfileDatas:fetchAllUsersController.getUserByEmail,
   ChangingUserInfo: LoginController.updateUserInformation,
   SearchUsers:fetchAllUsersController.searchUsers,
+  SearchDoctors:fetchAllUsersController.searchDoctors,
   BlockUser: UserBlockAndUnblockController.blockUser.bind(UserBlockAndUnblockController),
   UnblockUser: UserBlockAndUnblockController.unblockUser.bind(UserBlockAndUnblockController),
   fecthingUserDetailsThroughSockets:fetchAllUsersController.getUserDetailsViaSocket,
-   blockingDoctor:UserBlockAndUnblockController.blockDoctor
+  blockingDoctor:UserBlockAndUnblockController.blockDoctor
 });
-// UpdateDoctorStatusAfterAdminApprove
+// HandleStripeWebhookUpdateUser
 
 console.log('Services added to gRPC server');
 

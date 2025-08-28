@@ -17,10 +17,10 @@ export interface signupResponse {
 
 
 export default class RegistrationController  {
-  private RegistretionService:IRegisterService
+  private readonly _registrationService: IRegisterService;
 
-  constructor(RegistretionService:IRegisterService) {
-    this.RegistretionService = RegistretionService;
+  constructor(registrationService: IRegisterService) {
+    this._registrationService = registrationService;
   }
 
 
@@ -33,7 +33,7 @@ export default class RegistrationController  {
     const userData = { name, email, password, phone_number, google_id }; 
   
     try {
-      const response = await this.RegistretionService.userRegistration(userData);
+      const response = await this._registrationService.userRegistration(userData);
       
   
       // Construct the User message
@@ -79,7 +79,7 @@ export default class RegistrationController  {
 
       
       
-      const response = await this.RegistretionService.checkUser(email,phoneNumber)
+      const response = await this._registrationService.checkUser(email,phoneNumber)
       
 
       if (response.success) {

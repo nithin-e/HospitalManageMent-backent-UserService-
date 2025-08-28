@@ -10,34 +10,78 @@ import { IDoctorPaymentService } from '../../Services/interface/updateDoctorAndU
 }
 
 
+
+export interface GrpcRequest {
+  request: {
+    eventData?: string;
+    eventType?: string;
+    type?: string;
+    data?: {
+      object: {
+        metadata?: {
+          email?: string;
+          transactionId?: string;
+        };
+        [key: string]: any;
+      };
+    };
+  };
+}
+
+
+
+interface GrpcCall {
+  request: any;
+}
+
+interface GrpcCallback {
+  (error: any, response: any): void;
+}
+
+
+
 export default class DoctorPaymentController   {
-  private UpdateDoctorAndUserAfterPaymentService: IDoctorPaymentService;
+  private readonly _doctorPaymentService: IDoctorPaymentService;
 
-  constructor(UpdateDoctorAndUserAfterPaymentService:IDoctorPaymentService) {
-
-    this.UpdateDoctorAndUserAfterPaymentService = UpdateDoctorAndUserAfterPaymentService;
+  constructor(doctorPaymentService: IDoctorPaymentService) {
+    this._doctorPaymentService = doctorPaymentService;
   }
 
-  updateDoctorAndUserAfterPayment  = async (call: ServerUnaryCall<UpdateDoctor,UserResponse>, callback: sendUnaryData<UserResponse>) => {
-    try {
-      const { email } = call.request;
-      const response = await this.UpdateDoctorAndUserAfterPaymentService.updateDoctorAndUser(email);
-      callback(null, response);
-    } catch (error) {
-      console.error('Error updating doctor and user after payment:', error);
-      const grpcError = {
-        code: grpc.status.INTERNAL,
-        message: error instanceof Error ? error.message : 'Internal server error'
-      };
-      callback(grpcError, null);
-    }
-  };
 
+
+
+
+
+ handleStripeWebhookUpdateUser  = async (call: GrpcCall, callback: GrpcCallback): Promise<void> => {
+    try {
+
+   
+      if (!call.request.eventData) {
+        callback(null, { 
+          success: false, 
+          message: 'Empty event data received' 
+        });
+        return;
+      }
+      
+      const eventData = JSON.parse(call.request.eventData);
+      const eventType = call.request.eventType || 'unknown';
+      
+      const result = await this._doctorPaymentService.handleStripeWebhookUpdateUser(eventType, eventData);
+      
+      callback(null, result);
+    } catch (error) {
+      callback(null, { 
+        success: false, 
+        message: `Error handling webhook: ${error instanceof Error ? error.message : 'Unknown error'}` 
+      });
+    }
+  }
 
   deleteDoctorAfterAdminReject  = async (call: ServerUnaryCall<UpdateDoctor,UserResponse>, callback: sendUnaryData<UserResponse>) => {
     try {
       const { email } = call.request;
-      const response = await this.UpdateDoctorAndUserAfterPaymentService.deleteDoctorAfterRejection(email);
+      const response = await this._doctorPaymentService.deleteDoctorAfterRejection(email);
       callback(null, response);
     } catch (error) {
       console.error('Error updating doctor and user after payment:', error);

@@ -7,10 +7,10 @@ const jwt = require('jsonwebtoken');
 
 export default class RegistartionService  implements IRegisterService {
 
+  private _userRepo: IRegistrationRepository;
 
-  private userRepo: IRegistrationRepository;
   constructor(userRepo: IRegistrationRepository) {
-    this.userRepo= userRepo
+    this._userRepo = userRepo;
   }
   
   userRegistration = async (userData: userData): Promise<{
@@ -31,7 +31,7 @@ export default class RegistartionService  implements IRegisterService {
             google_id,
         };
 
-        const response = await this.userRepo.saveUser(newUserData);
+        const response = await this._userRepo.saveUser(newUserData);
         console.log('usecase response after signup', response);
 
         const accessToken = jwt.sign(
@@ -76,7 +76,7 @@ export default class RegistartionService  implements IRegisterService {
       try {
 
         
-        const user = await this.userRepo.checkUser(email,phoneNumber);
+        const user = await this._userRepo.checkUser(email,phoneNumber);
         
         return user;
         

@@ -15,6 +15,7 @@
     "@grpc/grpc-js": "^1.13.2",
     "@grpc/proto-loader": "^0.7.13",
     "@types/socket.io": "^3.0.2",
+    "amqplib": "^0.10.4",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^3.0.2",
     "dotenv": "^16.4.7",
@@ -24,6 +25,7 @@
     "socket.io": "^4.8.1"
   },
   "devDependencies": {
+    "@types/amqplib": "^0.10.5",
     "@types/express": "^5.0.1",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",

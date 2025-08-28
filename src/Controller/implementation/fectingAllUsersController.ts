@@ -74,16 +74,17 @@ interface FormattedUsersResponse {
 
 
 export default class UserGrpcController   {
-  private FectingAllUsersService: IUserService;
+  private readonly _userService: IUserService;
 
-  constructor(FectingAllUsersService: IUserService) {
-    this.FectingAllUsersService = FectingAllUsersService;
+  constructor(userService: IUserService) {
+    this._userService = userService;
   }
+
 
    getAllUsers = async (call: IGrpcCall, callback: GrpcCallback):Promise<void> => {
 
     try {
-      const response = await this.FectingAllUsersService.getAllUsers();
+      const response = await this._userService.getAllUsers();
       const formattedResponse: FormattedUsersResponse = {
         users: response,
       };
@@ -103,7 +104,7 @@ export default class UserGrpcController   {
         throw new Error('Email is required');
       }
 
-      const response = await this.FectingAllUsersService.getUserByEmail(email);
+      const response = await this._userService.getUserByEmail(email);
       const userData: FormattedUserResponse = {
         user: {
           id: response.id,
@@ -124,10 +125,11 @@ export default class UserGrpcController   {
   }
 
 
-   searchUsers = async (call: IGrpcCall, callback: GrpcCallback): Promise<void> =>{
-   
 
+   searchUsers = async (call: IGrpcCall, callback: GrpcCallback): Promise<void> =>{
   try {
+
+    console.log('check this request while the uer serch something',call.request)
    
     const { 
       searchQuery = '', 
@@ -140,8 +142,9 @@ export default class UserGrpcController   {
 
   
     
+    
 
-    const response = await this.FectingAllUsersService.searchUsers(
+    const response = await this._userService.searchUsers(
       searchQuery,
       sortBy,
       sortDirection,
@@ -174,7 +177,7 @@ export default class UserGrpcController   {
 
 
  
-    const patientResponse = await this.FectingAllUsersService.getUserDetailsViaSocket(patientId);
+    const patientResponse = await this._userService.getUserDetailsViaSocket(patientId);
 
     const userData = {
       id: patientResponse.id,
@@ -198,5 +201,40 @@ export default class UserGrpcController   {
     // callback(grpcError, null);
   }
 }
+
+ searchDoctors = async (call: IGrpcCall, callback: GrpcCallback): Promise<void> => {
+    try {
+      console.log('Doctor search request:', call.request);
+   
+      const { 
+        searchQuery = '', 
+        sortBy = 'createdAt',
+        sortDirection = 'desc',
+        page = 1,
+        limit = 50
+      } = call.request;
+
+
+      const response = await this._userService.searchDoctors(
+        searchQuery,
+        sortBy,
+        sortDirection,
+        page,
+        limit
+      );
+
+      console.log('check this reps in controller',response);
+      
+
+      callback(null, response);
+    } catch (error) {
+      console.log('Error in doctor search:', error);
+      const grpcError = {
+        code: 13, // INTERNAL error code
+        message: (error as Error).message,
+      };
+      // callback(grpcError, null);
+    }
+  };
 
 }
