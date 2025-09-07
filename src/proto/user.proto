@@ -44,10 +44,17 @@ service User {
 
  rpc HandleStripeWebhookUpdateUser(StripeWebhookRequest) returns (StripeWebhookResponse) {}
 
+ rpc UpdateDoctorStatusAfterAdminApprove (UpdateDoctorStatusAfterAdminApproveRequest) returns (UpdateDoctorStatusAfterAdminApproveResponse){}
 
 }
 
+message UpdateDoctorStatusAfterAdminApproveRequest {
+   string email =1;
+}
 
+message UpdateDoctorStatusAfterAdminApproveResponse{
+   bool success =1;
+}
 
 message StripeWebhookRequest {
   string eventType = 1;

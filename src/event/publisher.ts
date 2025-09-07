@@ -49,16 +49,14 @@ class RabbitMQPublisher {
       
       // Use environment variable instead of hardcoded URL
       this.conn = await amqp.connect(RABBIT_URL, {
-        heartbeat: 60,
-        connectionTimeout: 30000,
-        frameMax: 0x10000, // 65536 bytes - use hex format for better compatibility
-        channelMax: 0, // No limit on channels
+        heartbeat: 60, // Increased heartbeat
+        connectionTimeout: 10000, // Reduced timeout
         // Add retry logic
         socketOptions: {
-          timeout: 30000,
+          timeout: 10000,
           noDelay: true,
           keepAlive: true,
-          keepAliveDelay: 60000
+          keepAliveDelay: 30000
         }
       });
 
@@ -179,7 +177,7 @@ class RabbitMQPublisher {
     } catch (error) {
       console.error('❌ Error closing RabbitMQ Publisher:', error);
     } finally {
-      // Always reset regardless of close success
+    
       this.cleanup();
     }
   }
@@ -190,8 +188,7 @@ class RabbitMQPublisher {
       return false;
     }
     
-    // Simple check - if we have both objects, assume connection is good
-    // The actual connection health will be tested when we try to use it
+
     return true;
   }
 }

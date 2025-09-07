@@ -141,7 +141,7 @@ grpcServer.addService(userProto.User.service, {
   fecthingUserDetailsThroughSockets:fetchAllUsersController.getUserDetailsViaSocket,
   blockingDoctor:UserBlockAndUnblockController.blockDoctor
 });
-// HandleStripeWebhookUpdateUser
+
 
 console.log('Services added to gRPC server');
 

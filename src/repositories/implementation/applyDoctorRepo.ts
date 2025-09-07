@@ -115,4 +115,14 @@ export default class ApplyDoctorRepository implements IDoctorRepository{
     }
   }
 
+
+
+
+
+
+
+
+
+
+
 }
