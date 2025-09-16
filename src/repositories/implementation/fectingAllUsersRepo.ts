@@ -1,8 +1,8 @@
-import { BaseRepository } from '../../../../shared/repositories/baseRepository';
 import {User} from '../../entities/user_schema'
 import {  IUserRepository, SearchUserResponse } from '../interface/fectingAllUsersRepoInterFace';
 import type { User as UserType } from "../../entities/user_schema";
 import  { DoctorDb} from "../../entities/doctor_schema";
+import { BaseRepository } from './baseRepo';
 
 
 
@@ -93,8 +93,8 @@ export default class FetchAllDataRepository  extends BaseRepository<UserType> im
       try {
         console.log('Fetching user with email in repo:', email);
         
-        // Query the database to get user by email
-        const user = await this.findOne(email );
+     
+        const user = await this.findOne({email });
         
         if (!user) {
           throw new Error('User not found');

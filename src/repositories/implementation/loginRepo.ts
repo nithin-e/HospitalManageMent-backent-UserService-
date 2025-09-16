@@ -2,8 +2,8 @@ import bcrypt from "../../utility/bcrypt";
 import {User} from '../../entities/user_schema'
 import { UserResponse } from "../../entities/user_interface";
 import {  ILoginRepository } from "../interface/loginRepoInterFace";
-import { BaseRepository } from "../../../../shared/repositories/baseRepository";
 import type { User as UserType } from "../../entities/user_schema";
+import { BaseRepository } from "./baseRepo";
 
 
 
@@ -80,9 +80,10 @@ export default class LoginRepository
   }): Promise<UserResponse> => {
     try {
       console.log('......inside repo....', userData);
+      const {email}=userData
       
       // Find user by email
-      const user = await this.findOne( userData.email );
+      const user = await this.findOne({email} );
       
       if (!user) {
         return {
@@ -114,8 +115,9 @@ export default class LoginRepository
     try {
         console.log('Repository function called with:', userData);
         
+        const {email}=userData
         // Find user by email
-        const user = await this.findOne( userData.email );
+        const user = await this.findOne({email} );
         
         if (!user) {
             return {

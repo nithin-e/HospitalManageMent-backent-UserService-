@@ -60,9 +60,7 @@ export default class UserRepository  implements IRegistrationRepository{
                 ((error.name === 'MongoServerError' && 'code' in error && (error as any).code === 11000) ||
                  error.name === 'DuplicateEmailError')) {
                 
-                // If Google sign-in, we should have handled this above, so this is unexpected
                 if (userData.google_id || userData.google_id) {
-                    // Try to find and return the user instead of throwing an error
                     try {
                         const existingUser = await User.findOne({ email: userData.email });
                         if (existingUser) {

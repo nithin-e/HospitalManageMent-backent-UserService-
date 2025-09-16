@@ -102,7 +102,7 @@ export interface ApplyDoctorRequest {
     specialty: string;
     qualifications: string;
     agreeTerms?: boolean;
-    profileImageUrl?: string;
+    profileImageUrl: string;
     medicalLicenseUrl?: string;
     status: string;
     createdAt: string;

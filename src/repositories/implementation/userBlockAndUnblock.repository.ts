@@ -1,12 +1,19 @@
 import { User } from '../../entities/user_schema';
 import { DoctorDb } from "../../entities/doctor_schema";
 import { IUserBlockAndUnblockRepository } from '../interface/userBlockAndUnblock.repository.interface';
+import { BaseRepository } from './baseRepo';
+import type { User as UserType } from "../../entities/user_schema";
 
-export default class UserBlockRepository implements IUserBlockAndUnblockRepository {
+export default class UserBlockRepository 
+  extends BaseRepository<UserType> implements IUserBlockAndUnblockRepository {
+  
+  constructor() {
+    super(User); // Pass the User model to the BaseRepository constructor
+  }
 
   async blockUser(userId: string): Promise<boolean> {
     try {
-      const user = await User.findById(userId);
+      const user = await this.findById(userId);
       
       if (!user) {
         throw new Error('User not found');
@@ -26,14 +33,14 @@ export default class UserBlockRepository implements IUserBlockAndUnblockReposito
       return true; // Indicate successful blocking
     } catch (error) {
       console.error('Error blocking user in repository:', error);
-      throw error; 
+      throw error;
     }
   }
 
   async unblockUser(userId: string): Promise<boolean> {
     try {
       // First find the user to verify they exist
-      const user = await User.findById(userId);
+      const user = await this.findById(userId);
       
       if (!user) {
         throw new Error('User not found');
@@ -57,19 +64,14 @@ export default class UserBlockRepository implements IUserBlockAndUnblockReposito
     }
   }
 
-
-
   async blockDoctor(doctorEmail: string): Promise<boolean> {
     try {
-    
       const result = await DoctorDb.updateOne(
         { email: doctorEmail },
         { $set: { isActive: false } }
       );
-     
-     
       
-      return true
+      return true;
     } catch (error) {
       console.error('Error blocking doctor in repository:', error);
       throw error;

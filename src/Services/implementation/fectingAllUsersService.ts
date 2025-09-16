@@ -11,16 +11,16 @@ import { SearchParams } from "../../allTypes/types";
 
 
 export default class fetchDataService  implements IUserService{
- private readonly _repo: IUserRepository;
+ private readonly _userRepository: IUserRepository;
 
   constructor(userRepo: IUserRepository) {
-    this._repo = userRepo;
+    this._userRepository = userRepo;
   }
 
 
 getAllUsers=async (): Promise<UserDTO[]>=>{
     try {
-     const response= await this._repo.getAllUsers()
+     const response= await this._userRepository.getAllUsers()
      const userDTOs = response.data.map(mapUserToDTO);
       return userDTOs;
 
@@ -33,7 +33,7 @@ getAllUsers=async (): Promise<UserDTO[]>=>{
 
 getUserByEmail = async (email: string):Promise<UserDTO> => {
     try {
-      const response = await this._repo.getUserByEmail(email);
+      const response = await this._userRepository.getUserByEmail(email);
       const userDTO = mapUserToDTO(response);
     return userDTO;
     } catch (error) {
@@ -45,7 +45,7 @@ getUserByEmail = async (email: string):Promise<UserDTO> => {
 // fecthingUserDetails__ThroughSocket
 getUserDetailsViaSocket = async (patientId: string): Promise<UserDTO> => {
   try {
-    const user = await this._repo.getUserDetailsViaSocket(patientId);
+    const user = await this._userRepository.getUserDetailsViaSocket(patientId);
     
     if (!user) {
       throw new Error(`User not found with ID: ${patientId}`);
@@ -80,7 +80,7 @@ searchUsers = async (
       limit: limit || 50
     };
 
-    const response = await this._repo.searchUsers(params);
+    const response = await this._userRepository.searchUsers(params);
     return {
       users: response.users,
       totalCount: response.totalCount,
@@ -118,7 +118,7 @@ searchUsers = async (
         role: role || '',
       };
 
-      const response = await this._repo.searchDoctors(params);
+      const response = await this._userRepository.searchDoctors(params);
       console.log('check this responce in service layer',response)
       return response; // Return the response directly
     } catch (error) {

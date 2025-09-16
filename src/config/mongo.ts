@@ -5,7 +5,7 @@ dotenv.config()
 
 const connectDB = async (): Promise<boolean> => {
     try {
-        const MONGO_URL = process.env.NODE_ENV === 'dev' ? process.env.MONGO_URL_DEV : process.env.MONGO_URL_PRO
+        const MONGO_URL = process.env.NODE_ENV === 'dev' ? process.env.MONGO_URL_DEV : process.env.MONGO_URL_DEV
         console.log("Attempting to connect to MongoDB URL:", MONGO_URL);
        
         if (!MONGO_URL) {
