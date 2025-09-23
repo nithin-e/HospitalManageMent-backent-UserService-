@@ -5,9 +5,10 @@
   "main": "index.js",
 "scripts": {
   "dev": "nodemon -r tsconfig-paths/register src/server.ts",
-  "build": "tsc",
+  "build": "tsc && cp -r src/proto dist/proto",
   "start": "node -r tsconfig-paths/register dist/server.js"
 },
+
 
   "keywords": [],
   "author": "",

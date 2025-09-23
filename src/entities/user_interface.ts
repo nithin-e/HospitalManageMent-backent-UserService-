@@ -1,4 +1,5 @@
 import { Types,Document } from 'mongoose';
+import { User } from 'src/interfaces/types';
 
 export interface userData {
   name: string;
@@ -124,3 +125,58 @@ export  interface LoginResponse {
   success: boolean;
   message?: string;
 }
+
+export interface LoginUserResponse {
+    message?: string;
+    user?: UserResponse;
+    access_token?: string;
+    refresh_token?: string;
+}
+
+ export interface checkResponse{
+  
+ }
+
+
+ export interface signupResponse {
+  user: UserResponse;
+      accessToken: string;
+      refreshToken: string;
+}
+
+
+export interface WebhookEventData {
+  type: string;
+  data: {
+    object: {
+      metadata?: {
+        email?: string;
+        transactionId?: string;
+      };
+      [key: string]: any;
+    };
+  };
+}
+
+
+export interface WebhookResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface SearchParams {
+  searchQuery: string;
+  sortBy: string;
+  sortDirection: string;
+  role: string;
+  page: number;
+  limit: number;
+  status?: ''
+}
+
+
+export interface StatusUpdateResponse {
+    success: boolean;
+    message?: string;
+    error?: string;
+  }

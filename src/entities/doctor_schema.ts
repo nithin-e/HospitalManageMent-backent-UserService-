@@ -1,6 +1,6 @@
 // models/doctor/doctorModel.ts
 import mongoose, { Document } from "mongoose";
-import { Doctor } from "../allTypes/types";
+import { Doctor } from "../interfaces/types";
 
 
 

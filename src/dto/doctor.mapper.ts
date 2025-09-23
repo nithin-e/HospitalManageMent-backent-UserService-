@@ -1,6 +1,6 @@
 // dtos/doctor.dto.ts
 
-import { Doctor } from "../allTypes/types";
+import { Doctor } from "../interfaces/types";
 
 export interface DoctorDTO {
     id: string;
