@@ -2,8 +2,8 @@
 import { sendUnaryData, ServerUnaryCall } from "@grpc/grpc-js";
 import * as grpc from "@grpc/grpc-js";
 import { UserResponse } from "../../entities/user_interface";
-import { IUserBlockAndUnblockService } from "../../services/interface/IBlockAndUnblockservice.";
 import { BlockingUser } from "src/interfaces/types";
+import { IUserBlockAndUnblockService } from "src/services/interface/IBlockAndUnblockservice.";
 
 export default class UserBlockController {
   private readonly _userBlockAndUnblockService: IUserBlockAndUnblockService;
@@ -20,16 +20,9 @@ export default class UserBlockController {
 
       const { id: userId } = call.request;
 
-      // Add null check
-      if (!this._userBlockAndUnblockService) {
-        throw new Error("UserBlockAndUnblockService is not initialized");
-      }
+      
 
-      if (typeof this._userBlockAndUnblockService.blockDoctor !== "function") {
-        throw new Error("BlockingUser method does not exist on service");
-      }
-
-      const result = await this._userBlockAndUnblockService.blockDoctor(userId);
+      const result = await this._userBlockAndUnblockService.blockUser(userId);
       console.log("Block result:", result);
 
       callback(null, {

@@ -1,6 +1,5 @@
 import { IDoctorService } from "../interface/IAllDoctorsService";
-import FetchAllDoctorRepository from "../../repositories/implementation/allDoctorRepository";
-import { RepositoryDoctorsResponse, RepositorySingleDoctorResponse, RepositorySingleDoctorResponsee } from "../../interfaces/types";
+import { RepositoryDoctorsResponse, RepositorySingleDoctorResponsee } from "../../interfaces/types";
 import { mapDoctorToDTO } from "../../dto/doctor.mapper";
 import { IDoctorRepository } from "../../repositories/interface/IAllDoctorsRepository";
 

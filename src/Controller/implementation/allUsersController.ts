@@ -8,16 +8,7 @@ import {
   IGrpcCall,
 } from "src/interfaces/types";
 
-// interface UserDocument extends Document {
-//   name: string;
-//   email: string;
-//   password?: string | null;
-//   phoneNumber?: string;
-//   googleId?: string;
-//   role?: "user" | "admin" | "doctor";
-//   isActive: boolean;
-//   createdAt: Date;
-// }
+
 
 export default class UserGrpcController {
   private readonly _userService: IUserService;

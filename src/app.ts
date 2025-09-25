@@ -24,7 +24,7 @@ import updateDoctorAndUserAfterPaymentController from "./Controller/implementati
 
 import blockAndUnblockRepo from "./repositories/implementation/blockAndUnblockRepository";
 import blockAndUnblockService from "./services/implementation/blockAndUnblockservice";
-import blockAndUnblockController from "./Controller/implementation/blockAndUnblockcontroller";
+import blockAndUnblockController from "./Controller/implementation/blockAndUnblockController";
 
 // Instantiate dependencies
 const LoginRepo = new loginRepo();

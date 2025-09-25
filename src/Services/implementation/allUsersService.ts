@@ -1,7 +1,6 @@
 import { mapUserToDTO, UserDTO } from "../../dto/user.dto";
 import { IUserRepository } from "../../repositories/interface/IAllUsersRepository.js";
-import { SearchDoctorResponse } from "../../repositories/implementation/allUserRepository.js";
-import { SearchParams } from "../../interfaces/types";
+import { SearchDoctorResponse, SearchParams } from "../../interfaces/types";
 import { IUserService } from "../interface/IAllUsersService";
 
 export default class fetchDataService implements IUserService {
