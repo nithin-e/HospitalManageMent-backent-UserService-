@@ -1,6 +1,6 @@
 // dtos/doctor.dto.ts
 
-import { Doctor } from "../interfaces/types";
+import { Doctor } from '../interfaces/types';
 
 export interface DoctorDTO {
     id: string;
@@ -17,28 +17,23 @@ export interface DoctorDTO {
     status: string;
     isActive: boolean;
     createdAt: string;
-    agreeTerms:boolean;
-  }
-
-  
-
-
-
+    agreeTerms: boolean;
+}
 
 export const mapDoctorToDTO = (doctor: Doctor): DoctorDTO => ({
-  id: doctor.id.toString(),
-  firstName: doctor.firstName,
-  lastName: doctor.lastName,
-  email: doctor.email,
-  phoneNumber: doctor.phoneNumber,
-  licenseNumber: doctor.licenseNumber,
-  medicalLicenseNumber: doctor.medicalLicenseNumber,
-  specialty: doctor.specialty,
-  qualifications: doctor.qualifications,
-  profileImageUrl: doctor.profileImageUrl ||'',
-  medicalLicenseUrl: doctor.medicalLicenseUrl || '',
-  status: doctor.status,
-  isActive: doctor.isActive ?? false,
-  createdAt: doctor.createdAt,
-  agreeTerms:doctor.agreeTerms ?? false
+    id: doctor.id.toString(),
+    firstName: doctor.firstName,
+    lastName: doctor.lastName,
+    email: doctor.email,
+    phoneNumber: doctor.phoneNumber,
+    licenseNumber: doctor.licenseNumber,
+    medicalLicenseNumber: doctor.medicalLicenseNumber,
+    specialty: doctor.specialty,
+    qualifications: doctor.qualifications,
+    profileImageUrl: doctor.profileImageUrl || '',
+    medicalLicenseUrl: doctor.medicalLicenseUrl || '',
+    status: doctor.status,
+    isActive: doctor.isActive ?? false,
+    createdAt: doctor.createdAt,
+    agreeTerms: doctor.agreeTerms ?? false,
 });

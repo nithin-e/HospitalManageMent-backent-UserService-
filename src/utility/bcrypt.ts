@@ -1,4 +1,4 @@
-import bcrypt from "bcryptjs";
+import bcrypt from 'bcryptjs';
 
 export default {
     securePassword: async (password: string) => {

@@ -1,11 +1,10 @@
-import "dotenv/config";
-import connectDB from "./config/mongo";
-import { startGrpcServer } from "./grpc/server";
+import 'dotenv/config';
+import connectDB from './config/mongo.config';
+import { startGrpcServer } from './grpc/server';
 
-(async () => {
-  console.log("Connecting to MongoDB...");
-  await connectDB();
-  console.log("✅ MongoDB connection successful");
+async function bootstarp() {
+    await connectDB();
+    startGrpcServer();
+}
 
-  startGrpcServer();
-})();
+bootstarp();

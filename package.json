@@ -3,13 +3,13 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-"scripts": {
-  "dev": "nodemon -r tsconfig-paths/register src/server.ts",
-  "build": "tsc && cp -r src/proto dist/proto",
-  "start": "node -r tsconfig-paths/register dist/server.js"
-},
-
-
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc && cp -r src/proto dist/proto",
+    "start": "node -r tsconfig-paths/register dist/server.js",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -22,16 +22,25 @@
     "bcryptjs": "^3.0.2",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "inversify": "^7.10.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.13.1",
     "socket.io": "^4.8.1"
   },
   "devDependencies": {
+    "@eslint/js": "^9.36.0",
     "@types/amqplib": "^0.10.5",
     "@types/express": "^5.0.1",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@typescript-eslint/parser": "^8.44.1",
+    "eslint": "^9.36.0",
+    "eslint-plugin-prettier": "^5.5.4",
+    "globals": "^16.4.0",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.8.2"
+    "tsx": "^4.20.5",
+    "typescript": "^5.8.2",
+    "typescript-eslint": "^8.44.1"
   }
 }
