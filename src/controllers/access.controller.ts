@@ -1,6 +1,6 @@
 import { sendUnaryData, ServerUnaryCall } from '@grpc/grpc-js';
 import { UserResponse } from '../entities/user_interface';
-import { IUserBlockAndUnblockService } from '@/services/interfaces/IBlockAndUnblockService.';
+import { IAccessService } from '@/services/interfaces/IAccess.service';
 import { inject } from 'inversify';
 import { TYPES } from '@/types/inversify';
 import { BlockingUser } from '@/types';
@@ -8,7 +8,7 @@ import { BlockingUser } from '@/types';
 export class AccessController {
     constructor(
         @inject(TYPES.UserBlockAndUnblockService)
-        private readonly _userBlockAndUnblockService: IUserBlockAndUnblockService
+        private readonly _userBlockAndUnblockService: IAccessService
     ) {}
 
     async blockUser(

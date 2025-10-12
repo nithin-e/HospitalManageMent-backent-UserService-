@@ -47,11 +47,11 @@ class RabbitMQPublisher {
 
             console.log('🔄 Connecting to RabbitMQ at:', RABBIT_URL);
 
-            // Use environment variable instead of hardcoded URL
+          
             this.conn = await amqp.connect(RABBIT_URL, {
-                heartbeat: 60, // Increased heartbeat
-                connectionTimeout: 10000, // Reduced timeout
-                // Add retry logic
+                heartbeat: 60, 
+                connectionTimeout: 10000,
+              
                 socketOptions: {
                     timeout: 10000,
                     noDelay: true,
@@ -60,7 +60,7 @@ class RabbitMQPublisher {
                 },
             });
 
-            // Handle connection errors
+            
             this.conn.on('error', (err) => {
                 console.error('❌ RabbitMQ connection error:', err);
                 this.cleanup();

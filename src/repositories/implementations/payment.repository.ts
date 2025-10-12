@@ -1,6 +1,6 @@
 import { User } from '../../entities/user_schema';
 import { DoctorDb } from '../../entities/doctor_schema';
-import { IDoctorPaymentRepository } from '../interfaces/IDoctorAndUserPaymentRepository';
+import { IDoctorPaymentRepository } from '../interfaces/IPayment.repository';
 import { UserResponse } from '../../entities/user_interface';
 import { injectable } from 'inversify';
 

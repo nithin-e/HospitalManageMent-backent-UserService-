@@ -1,6 +1,6 @@
 import { SearchDoctorResponse } from "@/types";
-import { IFetchDoctorService } from "./IAllDoctorsService";
-import { IApplyDoctorService } from "./IApplyDoctorService";
+import { IFetchDoctorService } from "./IAll-doctors.service";
+import { IApplyDoctorService } from "./IApply-doctor.service";
 
 export interface IDoctorService  extends IApplyDoctorService, IFetchDoctorService {
         searchDoctors(

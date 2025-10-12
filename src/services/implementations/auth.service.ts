@@ -1,12 +1,12 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from '../../utility/bcrypt';
 import { userData, UserResponse } from '../../entities/user_interface';
-import { ILoginRepository } from '../../repositories/interfaces/ILoginRepository';
+import { ILoginRepository } from '../../repositories/interfaces/ILogin.repository';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '@/types/inversify';
-import { IRegistrationRepository } from '@/repositories/interfaces/IRegistretionRepository';
+import { IRegistrationRepository } from '@/repositories/interfaces/IRegistretion.repository';
 import { LoginResponse } from '@/types';
-import { ILoginService } from '../interfaces/ILoginService';
+import { ILoginService } from '../interfaces/ILogin.service';
 
 @injectable()
 export  class AuthService implements ILoginService {

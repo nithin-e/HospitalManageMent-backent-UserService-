@@ -2,14 +2,31 @@ import * as grpc from '@grpc/grpc-js';
 
 import { inject, injectable } from 'inversify';
 import { TYPES } from '@/types/inversify';
+import { Request, Response } from 'express';
 
 import { ServerUnaryCall, sendUnaryData, ServiceError } from '@grpc/grpc-js';
 
-import { IDoctorService } from '@/services/interfaces/IDoctorService';
+import { IDoctorService } from '@/services/interfaces/IDoctor.service';
 import { ApplyDoctorMapper } from '@/dto/DoctorApplicationMapper';
 import { DoctorsMapper, SingleDoctorMapper } from '@/dto/DoctorsMapper';
 import { UserResponse } from '@/entities/user_interface';
-import { IGrpcCall, GrpcCallbacks, ApplyDoctorCall, ApplyDoctorResponse, BlockingUser, Doctor, DoctorsResponse, GRPCCallback, RepositorySingleDoctorResponsee, SingleDoctorRequest, SingleDoctorResponse, UpdateDoctorStatusAfterAdminApproveResponse, UpdateStatusCall } from '@/types';
+import {
+    IGrpcCall,
+    GrpcCallbacks,
+    ApplyDoctorCall,
+    ApplyDoctorResponse,
+    BlockingUser,
+    Doctor,
+    DoctorsResponse,
+    GRPCCallback,
+    RepositorySingleDoctorResponsee,
+    SingleDoctorRequest,
+    SingleDoctorResponse,
+    UpdateDoctorStatusAfterAdminApproveResponse,
+    UpdateStatusCall,
+    ApplyDoctorRequest,
+} from '@/types';
+import uploadToS3 from '@/config/s3';
 
 @injectable()
 export class DoctorController {
@@ -18,216 +35,199 @@ export class DoctorController {
         private readonly _doctorService: IDoctorService
     ) {}
 
-    applyForDoctor = async (
-        call: ApplyDoctorCall,
-        callback: GRPCCallback<ApplyDoctorResponse>
-    ) => {
-        const doctorData = {
-            userId: call.request.userId,
-            firstName: call.request.first_name,
-            lastName: call.request.last_name,
-            email: call.request.email,
-            phoneNumber: call.request.phone_number,
-            licenseNumber: call.request.license_number,
-            specialty: call.request.specialty,
-            qualifications: call.request.qualifications,
-            medicalLicenseNumber: call.request.medical_license_number,
-            agreeTerms: call.request.agree_terms,
-            documentUrls: call.request.document_urls,
-        };
-
+    async applyForDoctor(req: Request, res: Response) {
         try {
+            const files =
+                ((req as any).files as {
+                    [fieldname: string]: Express.Multer.File[];
+                }) || {};
+
+            let profileImageUrl = '';
+            let medicalLicenseUrl = '';
+
+            if (files.profileImage?.[0]) {
+                profileImageUrl = await uploadToS3(files.profileImage[0]);
+            }
+
+            if (files.medicalLicense?.[0]) {
+                medicalLicenseUrl = await uploadToS3(files.medicalLicense[0]);
+            }
+
+            const body = req.body as unknown as ApplyDoctorRequest;
+            const {
+                userId,
+                first_name,
+                last_name,
+                email,
+                phone_number,
+                license_number,
+                specialty,
+                qualifications,
+                medical_license_number,
+                agree_terms,
+            } = body;
+
+            const doctorData = {
+                userId,
+                firstName: first_name,
+                lastName: last_name,
+                email,
+                phoneNumber: phone_number,
+                licenseNumber: license_number,
+                specialty,
+                qualifications,
+                medicalLicenseNumber: medical_license_number,
+                agreeTerms: agree_terms === true || agree_terms === 'true',
+                documentUrls: [profileImageUrl, medicalLicenseUrl].filter(
+                    Boolean
+                ),
+            };
+
             const response =
                 await this._doctorService.applyForDoctor(doctorData);
 
-          
-            const grpcResponse = new ApplyDoctorMapper(
+            const result = new ApplyDoctorMapper(
                 response,
-                call.request
+                req.body
             ).toGrpcResponse();
 
-            callback(null, grpcResponse);
+            res.status(200).json({ data: result });
         } catch (error) {
-            console.log('Error in applyForDoctor:', error);
-            const grpcError = {
-                code: grpc.status.INTERNAL,
-                message: (error as Error).message,
-            };
-            callback(grpcError, null);
+            console.error('REST applyForDoctor error:', error);
+            res.status(500).json({ message: (error as Error).message });
         }
-    };
-
+    }
     UpdateDoctorStatusAfterAdminApprove = async (
-        call: UpdateStatusCall,
-        callback: GRPCCallback<UpdateDoctorStatusAfterAdminApproveResponse>
-    ) => {
-        console.log('doctor datas:', call.request);
-
-        const { email } = call.request;
+        req: Request,
+        res: Response
+    ): Promise<void> => {
         try {
+            const { email } = req.body;
+
             const response =
                 await this._doctorService.updateDoctorStatusAfterAdminApproval(
                     email
                 );
 
             console.log(
-                'checke the responce UpdateDoctorStatusAfterAdminApprove',
+                'Doctor status updated after admin approval:',
                 response
             );
 
-            callback(null, response);
+            res.json(response);
         } catch (error) {
-            console.log('Error in applyForDoctor:', error);
-            const grpcError = {
-                code: grpc.status.INTERNAL,
-                message: (error as Error).message,
-            };
-            callback(grpcError, null);
+            console.error(
+                'REST UpdateDoctorStatusAfterAdminApprove error:',
+                error
+            );
+            res.status(500).json({ message: (error as Error).message });
         }
     };
 
-    getAllDoctors = async (
-        call: ServerUnaryCall<Record<string, never>, DoctorsResponse>,
-        callback: sendUnaryData<DoctorsResponse>
-    ): Promise<void> => {
+    getAllDoctors = async (req: Request, res: Response): Promise<void> => {
         try {
+         
             const doctorsResponse = await this._doctorService.getAllDoctors();
             const doctors: Doctor[] = doctorsResponse.data;
 
-            // ✅ Use mapper
+           
             const response = new DoctorsMapper(doctors).toGrpcResponse();
 
             console.log(
                 'Check the response while fetching all doctors',
                 response
             );
-            callback(null, response);
+
+         
+            res.status(200).json({ data: response });
         } catch (error) {
-            const grpcError: ServiceError = {
-                code: grpc.status.INTERNAL,
+            console.error('REST getAllDoctors error:', error);
+
+            res.status(500).json({
                 message:
                     error instanceof Error
                         ? error.message
                         : 'Internal server error',
-                name: 'Internal Server Error',
-                details: '',
-                metadata: new grpc.Metadata(),
-            };
-            callback(grpcError, null);
+            });
         }
     };
 
-    getDoctorByEmail = async (
-        call: ServerUnaryCall<SingleDoctorRequest, SingleDoctorResponse>,
-        callback: sendUnaryData<RepositorySingleDoctorResponsee>
-    ): Promise<void> => {
+    getDoctorByEmail = async (req: Request, res: Response): Promise<void> => {
         try {
-            const { email } = call.request;
-
-            if (!email) {
-                const grpcError: ServiceError = {
-                    code: grpc.status.INVALID_ARGUMENT,
-                    message: 'Email is required',
-                    name: 'Invalid Argument',
-                    details: '',
-                    metadata: new grpc.Metadata(),
-                };
-                return callback(grpcError, null);
-            }
+            const email = (req.query.email as string) || req.body.email;
 
             const doctorResponse =
                 await this._doctorService.getDoctorByEmail(email);
 
-            if (!doctorResponse.doctor) {
-                const grpcError: ServiceError = {
-                    code: grpc.status.NOT_FOUND,
-                    message: 'Doctor not found',
-                    name: 'Not Found',
-                    details: '',
-                    metadata: new grpc.Metadata(),
-                };
-                return callback(grpcError, null);
-            }
-
-            const grpcResponse = new SingleDoctorMapper(
+            const response = new SingleDoctorMapper(
                 doctorResponse.doctor
             ).toGrpcResponse();
-            callback(null, grpcResponse);
+
+            // Send JSON response
+            res.status(200).json({ data: response });
         } catch (error) {
-            const grpcError: ServiceError = {
-                code: grpc.status.INTERNAL,
+            console.error('REST getDoctorByEmail error:', error);
+            res.status(500).json({
                 message:
                     error instanceof Error
                         ? error.message
                         : 'Internal server error',
-                name: 'Internal Server Error',
-                details: '',
-                metadata: new grpc.Metadata(),
-            };
-            callback(grpcError, null);
+            });
         }
     };
 
-    blockDoctor = async (
-        call: ServerUnaryCall<BlockingUser, boolean>,
-        callback: sendUnaryData<UserResponse>
-    ) => {
+    blockDoctor = async (req: Request, res: Response): Promise<void> => {
         try {
-            console.log('check this call request', call.request);
-            const { email } = call.request;
+            const email =
+                (req.body.email as string) || (req.query.email as string);
 
-            const response = await this._doctorService.blockDoctor(email);
-            console.log('check here ', response);
+            const success = await this._doctorService.blockDoctor(email);
 
-            callback(null, { success: response });
+            res.status(200).json({ success });
         } catch (error) {
-            console.error(
-                'Error updating doctor and user after payment:',
-                error
-            );
-            const grpcError = {
-                code: grpc.status.INTERNAL,
+            console.error('REST blockDoctor error:', error);
+            res.status(500).json({
                 message:
                     error instanceof Error
                         ? error.message
                         : 'Internal server error',
-            };
-            callback(grpcError, null);
+            });
         }
     };
 
-
-      searchDoctors = async (
-        call: IGrpcCall,
-        callback: GrpcCallbacks
-    ): Promise<void> => {
+    searchDoctors = async (req: Request, res: Response): Promise<void> => {
         try {
-            console.log('Doctor search request:', call.request);
-
             const {
                 searchQuery = '',
                 sortBy = 'createdAt',
                 sortDirection = 'desc',
                 page = 1,
                 limit = 50,
-            } = call.request;
+            } = req.query as unknown as {
+                searchQuery?: string;
+                sortBy?: string;
+                sortDirection?: 'asc' | 'desc';
+                page?: number;
+                limit?: number;
+            };
 
             const response = await this._doctorService.searchDoctors(
                 searchQuery,
                 sortBy,
                 sortDirection,
-                page,
-                limit
+                Number(page),
+                Number(limit)
             );
 
-            callback(null, response);
+            res.status(200).json({ data: response });
         } catch (error) {
-            console.log('Error in doctor search:', error);
-            const grpcError = {
-                code: 13, // INTERNAL error code
-                message: (error as Error).message,
-            };
-            // callback(grpcError, null);
+            console.error('REST searchDoctors error:', error);
+            res.status(500).json({
+                message:
+                    error instanceof Error
+                        ? error.message
+                        : 'Internal server error',
+            });
         }
     };
 }

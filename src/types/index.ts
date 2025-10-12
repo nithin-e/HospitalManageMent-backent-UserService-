@@ -29,10 +29,12 @@ export interface ApplyDoctorRequest {
     specialty: string;
     qualifications: string;
     medical_license_number: string;
-    agree_terms: boolean;
+    agree_terms: boolean|string;
     document_urls: string[];
     userId: string;
 }
+
+
 
 export interface ApplyDoctorResponse {
     success: boolean;
@@ -95,6 +97,17 @@ export interface UpdateDoctorStatusAfterAdminApproveResponse {
     success: boolean;
 }
 
+
+export const StatusCode = {
+    OK: 200,
+    Created: 201,
+    BadRequest: 400,
+    Unauthorized: 401,
+    Forbidden: 403,
+    NotFound: 404,
+    InternalServerError: 500,
+  };
+
 export interface StatusUpdateResponse {
     success: boolean;
     message?: string;
@@ -121,6 +134,16 @@ export interface Doctor {
 export interface DoctorsResponse {
     doctors: Doctor[];
 }
+
+// export const StatusCode = {
+//     OK: 200,
+//     Created: 201,
+//     BadRequest: 400,
+//     Unauthorized: 401,
+//     Forbidden: 403,
+//     NotFound: 404,
+//     InternalServerError: 500,
+//   };
 
 export interface SingleDoctorResponse {
     doctor: Doctor;
@@ -177,7 +200,7 @@ export interface ApplyDoctorRequest {
     specialty: string;
     qualifications: string;
     medical_license_number: string;
-    agree_terms: boolean;
+    agree_terms: boolean|string
     document_urls: string[];
     userId: string;
 }
@@ -335,7 +358,7 @@ export interface ApplyDoctorRequest {
     specialty: string;
     qualifications: string;
     medical_license_number: string;
-    agree_terms: boolean;
+    agree_terms: boolean|string
     document_urls: string[];
     userId: string;
 }
@@ -469,7 +492,7 @@ export interface ApplyDoctorRequest {
     specialty: string;
     qualifications: string;
     medical_license_number: string;
-    agree_terms: boolean;
+    agree_terms: boolean|string
     document_urls: string[];
     userId: string;
 }

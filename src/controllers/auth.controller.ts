@@ -13,7 +13,8 @@ import { TYPES } from '@/types/inversify';
 import { LoginUserMapper } from '@/dto/LoginUserMapper';
 import { SignupUserMapper } from '@/dto/SignupUserMapper';
 import { forgetData, LoginUserRequest } from '@/types';
-import { ILoginService } from '@/services/interfaces/ILoginService';
+import { ILoginService } from '@/services/interfaces/ILogin.service';
+import { Response, Request } from 'express';
 
 @injectable()
 export class AuthController {
@@ -22,14 +23,12 @@ export class AuthController {
         private readonly _userService: ILoginService
     ) {}
 
-            login = async (
-                call: ServerUnaryCall<LoginUserRequest, LoginUserResponse>,
-                callback: sendUnaryData<LoginUserResponse>
-            ): Promise<void> => {
-                try {
-                    const { email, password, google_id, name } = call.request;
+    login = async (req: Request, res: Response) => {
+        try {
+            const { email, password, google_id, name }: LoginUserRequest =
+                req.body;
 
-                    const loginData: LoginUserRequest = {
+            const loginData: LoginUserRequest = {
                 email,
                 password,
                 google_id,
@@ -39,158 +38,111 @@ export class AuthController {
                 loginData
             )) as LoginResponse;
 
-            const grpcResponse = new LoginUserMapper(response).toGrpcResponse();
+            const mappedResponse = new LoginUserMapper(
+                response
+            ).toGrpcResponse();
 
-            callback(null, grpcResponse);
+           
+            
+
+            res.json(mappedResponse);
         } catch (error) {
-            console.error('Controller error:', error);
-            const grpcError: ServiceError = {
-                code: grpc.status.INTERNAL,
-                message:
-                    error instanceof Error ? error.message : 'Unknown error',
-                name: 'Internal Error',
-                details: '',
-                metadata: new grpc.Metadata(),
-            };
-            callback(grpcError, null);
+            console.error('REST login error:', error);
+            res.status(500).json({ message: (error as Error).message });
         }
     };
 
-    forgotPassword = async (
-        call: ServerUnaryCall<forgetData, UserResponse>,
-        callback: sendUnaryData<UserResponse>
-    ) => {
+    forgotPassword = async (req: Request, res: Response) => {
         try {
-            const { email, newPassword } = call.request;
-
+            const { email, newPassword } = req.body;
             if (!newPassword) {
-                const grpcError = {
-                    code: grpc.status.INVALID_ARGUMENT,
-                    message: 'New password is required',
-                };
-                callback(grpcError, null);
-                return;
+                console.error('REST login error:');
             }
 
             const loginData = { email, newPassword };
             const response = await this._userService.forgotPassword(loginData);
-
-            callback(null, response);
+            res.json(response);
         } catch (error) {
-            console.log('mmmmm', error);
-            const grpcError = {
-                code: grpc.status.INTERNAL,
-                message: (error as Error).message,
-            };
-            callback(grpcError, null);
+            console.error('REST forgot password error:', error);
+            res.status(500).json({ message: (error as Error).message });
         }
     };
 
-    changeUserPassword = async (
-        call: ServerUnaryCall<forgetData, UserResponse>,
-        callback: sendUnaryData<UserResponse>
-    ) => {
+    changeUserPassword = async (req: Request, res: Response) => {
         try {
-            const { email, password } = call.request;
+            const { email, password }: forgetData = req.body;
 
-            const response = await this._userService.changeUserPassword({
-                email: email,
-                password: password,
-            });
+            // Call the service layer
+            const response: UserResponse =
+                await this._userService.changeUserPassword({
+                    email,
+                    password,
+                });
 
-            callback(null, response);
+            res.json(response);
         } catch (error) {
-            console.log('Error in changing password:', error);
-            const grpcError = {
-                code: grpc.status.INTERNAL,
-                message: (error as Error).message,
-            };
-            callback(grpcError, null);
+            console.error('REST changeUserPassword error:', error);
+            res.status(500).json({ message: (error as Error).message });
         }
     };
 
-    updateUserInformation = async (
-        call: ServerUnaryCall<forgetData, UserResponse>,
-        callback: sendUnaryData<UserResponse>
-    ) => {
+    updateUserInformation = async (req: Request, res: Response) => {
         try {
-            const { email, name, phoneNumber } = call.request;
+            const { email, name, phoneNumber }: forgetData = req.body;
 
             const response = await this._userService.updateUserInformation({
-                email: email,
-                name: name,
-                phoneNumber: phoneNumber,
+                email,
+                name,
+                phoneNumber,
             });
 
-            callback(null, {
-                success: response.success,
-            });
+            const userResponse: UserResponse = { success: response.success };
+            res.json(userResponse);
         } catch (error) {
-            console.log('Error in changing user info:', error);
-            const grpcError = {
-                code: grpc.status.INTERNAL,
-                message: (error as Error).message,
-            };
-            callback(grpcError, null);
+            console.error('REST updateUserInformation error:', error);
+            res.status(500).json({ message: (error as Error).message });
         }
     };
 
-    signup = async (
-        call: ServerUnaryCall<userData, signupResponse>,
-        callback: sendUnaryData<signupResponse>
-    ) => {
-        const { name, email, password, phone_number, google_id } = call.request;
-        const userData = { name, email, password, phone_number, google_id };
-
+    signup = async (req: Request, res: Response) => {
         try {
-            const response =
-                await this._userService.userRegistration(userData);
+            const { name, email, password, phone_number, google_id }: userData =
+                req.body;
+            const userData = { name, email, password, phone_number, google_id };
+
+            const response = await this._userService.userRegistration(userData);
 
             const userMessage = new SignupUserMapper(
                 response.user
             ).toUserMessage();
 
-            const registerResponse = {
+            const registerResponse: signupResponse = {
                 user: userMessage,
                 accessToken: response.accessToken,
                 refreshToken: response.refreshToken,
             };
 
-            callback(null, registerResponse);
+            // Send JSON response
+            res.json(registerResponse);
         } catch (error) {
-            const grpcError = {
-                code: grpc.status.INTERNAL,
-                message: (error as Error).message,
-            };
-            callback(grpcError, null);
+            console.error('REST signup error:', error);
+            res.status(500).json({ message: (error as Error).message });
         }
     };
-    checkUser = async (
-        call: ServerUnaryCall<userData, signupResponse>,
-        callback: sendUnaryData<checkResponse>
-    ) => {
-        try {
-            const { email, phoneNumber } = call.request;
 
-            const response = await this._userService.checkUser(
+    checkUser = async (req: Request, res: Response) => {
+        try {
+            const { email, phoneNumber }: userData = req.body;
+
+            const response: checkResponse = await this._userService.checkUser(
                 email,
                 phoneNumber
             );
 
-            if (response.success) {
-                console.log('response=if==', response);
-                callback(null, response);
-            } else {
-                console.log('response=else==', response);
-                callback(null, response);
-            }
+            res.json(response);
         } catch (error) {
-            console.log('mmmmm', error);
-            const grpcError = {
-                code: grpc.status.INTERNAL,
-                message: (error as Error).message,
-            };
-            callback(grpcError, null);
+            console.error('REST checkUser error:', error);
+            res.status(500).json({ message: (error as Error).message });
         }
     };
 }

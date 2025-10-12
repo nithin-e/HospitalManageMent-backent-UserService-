@@ -1,10 +1,8 @@
 import { UserDTO } from '@/dto/user.dto';
 import { SearchUserResponse } from '@/types';
-import { ILoginService } from './ILoginService';
-import { IRegisterService } from './IRegistretionService';
+import { IAuthService } from './IAuth.service';
 
-
-export interface IAuthService extends ILoginService, IRegisterService {
+export interface IUserService {
     getAllUsers(): Promise<UserDTO[]>;
 
     getUserByEmail(email: string): Promise<UserDTO>;

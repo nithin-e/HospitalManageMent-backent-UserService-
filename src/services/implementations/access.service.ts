@@ -1,11 +1,11 @@
-import { IUserBlockAndUnblockService } from '../interfaces/IBlockAndUnblockService.';
 
-import { IUserBlockAndUnblockRepository } from '../../repositories/interfaces/IBlockAndUnblockRepository.';
+import { IUserBlockAndUnblockRepository } from '../../repositories/interfaces/IAccess.repository';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '@/types/inversify';
+import { IAccessService } from '../interfaces/IAccess.service';
 
 @injectable()
-export default class AccessService implements IUserBlockAndUnblockService {
+export default class AccessService implements IAccessService {
     constructor(
         @inject(TYPES.UserBlockRepository)
         private _userBlockAndUnblockRepo: IUserBlockAndUnblockRepository

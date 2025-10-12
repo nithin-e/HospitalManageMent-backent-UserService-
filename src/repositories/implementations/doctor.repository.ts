@@ -1,17 +1,11 @@
-import { StatusUpdateResponse } from 'src/entities/user_interface';
-import {
-    DoctorApplicationResult,
-    DoctorFormData,
-    RepositoryDoctorsResponse,
-    RepositorySingleDoctorResponsee,
-    SearchDoctorResponse,
-    SearchParamss,
-} from '../../interfaces/types';
+import { DoctorFormData, StatusUpdateResponse } from 'src/entities/user_interface';
+
 import { DoctorDb } from '../../entities/doctor_schema';
 import { User } from '../../entities/user_schema';
-import { IApplyDoctorRepository } from '../interfaces/IDoctorRepository';
+import { IApplyDoctorRepository } from '../interfaces/IDoctor.repository';
 import { injectable } from 'inversify';
-import { IDoctorRepository } from '../interfaces/IDoctorsRepository';
+import { IDoctorRepository } from '../interfaces/IDoctors.repository';
+import { SearchParamss, SearchDoctorResponse, DoctorApplicationResult, RepositoryDoctorsResponse, RepositorySingleDoctorResponsee } from '@/types';
 
 @injectable()
 export default class DoctorRepository

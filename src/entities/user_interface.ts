@@ -1,5 +1,4 @@
 import { Types, Document } from 'mongoose';
-import { User } from 'src/interfaces/types';
 
 export interface userData {
     name: string;

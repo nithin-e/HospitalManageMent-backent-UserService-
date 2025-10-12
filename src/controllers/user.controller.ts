@@ -5,7 +5,8 @@ import { TYPES } from '@/types/inversify';
 import { UserMapper } from '@/dto/UserMapper';
 import { UserSocketMapper } from '@/dto/UserSocketMapper';
 import { IGrpcCall, GrpcCallbacks, FormattedUsersResponse } from '@/types';
-import { IUserService } from '@/services/interfaces/IUserService';
+import { IUserService } from '@/services/interfaces/IUser.service';
+import { RequestHandler } from 'express';
 
 @injectable()
 export class UserController {
@@ -13,49 +14,39 @@ export class UserController {
         @inject(TYPES.UserService) private readonly _userService: IUserService
     ) {}
 
-    getAllUsers = async (
-        call: IGrpcCall,
-        callback: GrpcCallbacks
-    ): Promise<void> => {
+    getAllUsers: RequestHandler = async (req, res, next) => {
         try {
             const response = await this._userService.getAllUsers();
             const formattedResponse: FormattedUsersResponse = {
                 users: response,
             };
-            callback(null, formattedResponse);
+            res.json(formattedResponse);
         } catch (error) {
-            console.log('Error fetching user data in controller:', error);
+            console.error('Error fetching user data (REST):', error);
+            res.status(500).json({ message: (error as Error).message });
         }
     };
 
-    getUserByEmail = async (
-        call: IGrpcCall,
-        callback: GrpcCallbacks
-    ): Promise<void> => {
+    getUserByEmail: RequestHandler = async (req, res, next) => {
         try {
-            const { email } = call.request;
+            const { email } = req.body as { email: string };
+
             if (!email) {
-                throw new Error('Email is required');
+                res.status(400).json({ message: 'Email is required' });
+                return;
             }
 
             const response = await this._userService.getUserByEmail(email);
-            const userData = new UserMapper(response).toGrpcResponse();
-            callback(null, userData);
+            const mappedResponse = new UserMapper(response).toGrpcResponse();
+            res.json(mappedResponse);
         } catch (error) {
-            console.log('Error fetching user data in controller:', error);
+            console.error('REST getUserByEmail error:', error);
+            res.status(500).json({ message: (error as Error).message });
         }
     };
 
-    searchUsers = async (
-        call: IGrpcCall,
-        callback: GrpcCallbacks
-    ): Promise<void> => {
+    searchUsers: RequestHandler = async (req, res, next) => {
         try {
-            console.log(
-                'check this request while the uer serch something',
-                call.request
-            );
-
             const {
                 searchQuery = '',
                 sortBy = 'createdAt',
@@ -63,7 +54,7 @@ export class UserController {
                 role = '',
                 page = 1,
                 limit = 50,
-            } = call.request;
+            } = req.body;
 
             const response = await this._userService.searchUsers(
                 searchQuery,
@@ -74,9 +65,9 @@ export class UserController {
                 limit
             );
 
-            callback(null, response);
+            res.json(response);
         } catch (error) {
-            console.log('Error in debounced search:', error);
+            res.status(500).json({ message: (error as Error).message });
         }
     };
 
@@ -108,6 +99,4 @@ export class UserController {
             // callback(grpcError, null);
         }
     };
-
-  
 }

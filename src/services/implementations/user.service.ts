@@ -1,8 +1,8 @@
 import { mapUserToDTO, UserDTO } from '../../dto/user.dto';
-import { IUserRepository } from '../../repositories/interfaces/IUsersRepository.js';
+import { IUserRepository } from '../../repositories/interfaces/IUsers.repository.js';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '@/types/inversify';
-import { IUserService } from '../interfaces/IUserService';
+import { IUserService } from '../interfaces/IUser.service';
 import { SearchParams } from '@/entities/user_interface';
 
 @injectable()

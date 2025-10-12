@@ -1,10 +1,10 @@
 import { mapDoctorToDTO } from '../../dto/doctor.mapper';
-import { IDoctorRepository } from '../../repositories/interfaces/IDoctorsRepository';
+import { IDoctorRepository } from '../../repositories/interfaces/IDoctors.repository';
 import { inject } from 'inversify';
 import { TYPES } from '@/types/inversify';
-import { IDoctorService } from '../interfaces/IDoctorService';
+import { IDoctorService } from '../interfaces/IDoctor.service';
 import { DoctorFormData } from '@/entities/user_interface';
-import { IApplyDoctorRepository } from '@/repositories/interfaces/IDoctorRepository';
+import { IApplyDoctorRepository } from '@/repositories/interfaces/IDoctor.repository';
 import { DoctorApplicationResponse, RepositoryDoctorsResponse, RepositorySingleDoctorResponsee, SearchDoctorResponse, StatusUpdateResponse } from '@/types';
 
 export default class DoctorService

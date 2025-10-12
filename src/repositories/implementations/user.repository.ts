@@ -4,7 +4,7 @@ import { registration, UserResponse } from '../../entities/user_interface';
 import type { User as UserType } from '../../entities/user_schema';
 import { BaseRepository } from './base.repository';
 import { injectable } from 'inversify';
-import { IUserRepository, SearchUserResponse } from '../interfaces/IUsersRepository';
+import { IUserRepository, SearchUserResponse } from '../interfaces/IUsers.repository';
 import {  RepositoryUsersResponse, SearchParams } from '@/types';
 
 

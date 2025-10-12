@@ -1,5 +1,5 @@
 import { UserResponse } from '../../entities/user_interface';
-import { IRegisterService } from './IRegistretionService';
+import { IRegisterService } from './IRegistretion.service';
 
 type LoginResponse =
     | {

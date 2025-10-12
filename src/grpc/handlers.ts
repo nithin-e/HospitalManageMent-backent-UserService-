@@ -40,7 +40,7 @@ export const userGrpcHandlers = {
         paymentController.deleteDoctorAfterAdminReject,
     FetchDoctorDashBoardData: doctorController.getDoctorByEmail,
     ApplyDoctor: doctorController.applyForDoctor,
-    FetchAllUsers: userController.getAllUsers,
+    // FetchAllUsers: userController.getAllUsers,
     fectingUserProfileDatas: userController.getUserByEmail,
     ChangingUserInfo: authController.updateUserInformation,
     SearchUsers: userController.searchUsers,

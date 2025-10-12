@@ -3,15 +3,14 @@ import DoctorPaymentController from '@/controllers/payment.controller';
 import { DoctorController } from '@/controllers/doctor.controller';
 import DoctorPaymentRepository from '@/repositories/implementations/payment.repository';
 import DoctorRepository from '@/repositories/implementations/doctor.repository';
-import { IDoctorRepository } from '@/repositories/interfaces/IDoctorsRepository';
-import { IUserRepository } from '@/repositories/interfaces/IUsersRepository';
-import { IUserBlockAndUnblockRepository } from '@/repositories/interfaces/IBlockAndUnblockRepository.';
-import { IDoctorPaymentRepository } from '@/repositories/interfaces/IDoctorAndUserPaymentRepository';
+import { IDoctorRepository } from '@/repositories/interfaces/IDoctors.repository';
+import { IUserRepository } from '@/repositories/interfaces/IUsers.repository';
+import { IUserBlockAndUnblockRepository } from '@/repositories/interfaces/IAccess.repository';
+import { IDoctorPaymentRepository } from '@/repositories/interfaces/IPayment.repository';
 import DoctorAndUserPaymentService from '@/services/implementations/payment.service';
 import ApplyDoctorService from '@/services/implementations/doctor.service';
-import { IUserBlockAndUnblockService } from '@/services/interfaces/IBlockAndUnblockService.';
-import { IDoctorPaymentService } from '@/services/interfaces/IDoctorAndUserPaymentService';
-import { IDoctorService } from '@/services/interfaces/IDoctorService';
+import { IDoctorPaymentService } from '@/services/interfaces/IPayment.service';
+import { IDoctorService } from '@/services/interfaces/IDoctor.service';
 import { TYPES } from '@/types/inversify';
 import { Container } from 'inversify';
 import { AuthController } from '@/controllers/auth.controller';
@@ -20,8 +19,9 @@ import AccessService from '@/services/implementations/access.service';
 import { AccessController } from '@/controllers/access.controller';
 import UserService from '@/services/implementations/user.service';
 import {AuthService} from '@/services/implementations/auth.service';
-import { ILoginService } from '@/services/interfaces/ILoginService';
-import { IUserService } from '@/services/interfaces/IUserService';
+import { ILoginService } from '@/services/interfaces/ILogin.service';
+import { IUserService } from '@/services/interfaces/IUser.service';
+import { IAccessService } from '@/services/interfaces/IAccess.service';
 
 const container = new Container();
 
@@ -53,7 +53,7 @@ container
     .to(UserRepository);
 
 container
-    .bind<IUserBlockAndUnblockService>(TYPES.UserBlockAndUnblockService)
+    .bind<IAccessService>(TYPES.UserBlockAndUnblockService)
     .to(AccessService);
 
 container.bind(TYPES.UserBlockAndUnblockController).to(AccessController);

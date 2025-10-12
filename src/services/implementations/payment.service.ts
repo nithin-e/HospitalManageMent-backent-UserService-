@@ -1,6 +1,6 @@
-import { IDoctorPaymentService } from '../interfaces/IDoctorAndUserPaymentService';
+import { IDoctorPaymentService } from '../interfaces/IPayment.service';
 import { UserResponse, WebhookEventData } from '../../entities/user_interface';
-import { IDoctorPaymentRepository } from '../../repositories/interfaces/IDoctorAndUserPaymentRepository';
+import { IDoctorPaymentRepository } from '../../repositories/interfaces/IPayment.repository';
 import { RabbitMQPublisher } from '../../event/publisher';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '@/types/inversify';

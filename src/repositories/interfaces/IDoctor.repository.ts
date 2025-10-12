@@ -1,5 +1,5 @@
+import { DoctorFormData } from '@/types';
 import { StatusUpdateResponse } from 'src/entities/user_interface';
-import { DoctorFormData } from '../../interfaces/types';
 
 export interface DoctorApplicationResponse {
     success: boolean;
