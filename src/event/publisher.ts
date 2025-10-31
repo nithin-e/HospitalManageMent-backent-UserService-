@@ -47,11 +47,10 @@ class RabbitMQPublisher {
 
             console.log('🔄 Connecting to RabbitMQ at:', RABBIT_URL);
 
-          
             this.conn = await amqp.connect(RABBIT_URL, {
-                heartbeat: 60, 
+                heartbeat: 60,
                 connectionTimeout: 10000,
-              
+
                 socketOptions: {
                     timeout: 10000,
                     noDelay: true,
@@ -60,7 +59,6 @@ class RabbitMQPublisher {
                 },
             });
 
-            
             this.conn.on('error', (err) => {
                 console.error('❌ RabbitMQ connection error:', err);
                 this.cleanup();

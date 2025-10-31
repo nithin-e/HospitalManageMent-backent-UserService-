@@ -82,6 +82,4 @@ export default class UserService implements IUserService {
             throw error;
         }
     };
-
-  
 }

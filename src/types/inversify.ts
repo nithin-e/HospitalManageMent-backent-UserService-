@@ -19,7 +19,7 @@ export const TYPES = {
     DoctorPaymentService: Symbol.for('DoctorPaymentService'),
     DoctorPaymentController: Symbol.for('DoctorPaymentController'),
 
-    UserBlockRepository: Symbol.for('UserBlockRepository'),
-    UserBlockAndUnblockService: Symbol.for('UserBlockAndUnblockService'),
-    UserBlockAndUnblockController: Symbol.for('UserBlockAndUnblockController'),
+    AccessRepository: Symbol.for('AccessRepository'),
+    AccessService: Symbol.for('AccessService'),
+    AccessController: Symbol.for('AccessController'),
 };

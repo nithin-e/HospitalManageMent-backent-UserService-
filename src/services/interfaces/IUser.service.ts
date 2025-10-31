@@ -1,6 +1,5 @@
 import { UserDTO } from '@/dto/user.dto';
 import { SearchUserResponse } from '@/types';
-import { IAuthService } from './IAuth.service';
 
 export interface IUserService {
     getAllUsers(): Promise<UserDTO[]>;

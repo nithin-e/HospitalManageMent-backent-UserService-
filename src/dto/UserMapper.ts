@@ -1,4 +1,4 @@
-import { FormattedUserResponse } from "@/types";
+import { FormattedUserResponse } from '@/types';
 
 export interface UserEntity {
     id: string;
@@ -20,7 +20,7 @@ export class UserMapper {
                 name: this.user.name,
                 email: this.user.email,
                 password: '', // always hide
-                phone_number: this.user.phone_number,
+                phoneNumber: this.user.phone_number,
                 role: this.user.role,
                 isActive: this.user.isActive,
             },

@@ -1,32 +1,18 @@
-import * as grpc from '@grpc/grpc-js';
-
 import { inject, injectable } from 'inversify';
 import { TYPES } from '@/types/inversify';
 import { Request, Response } from 'express';
-
-import { ServerUnaryCall, sendUnaryData, ServiceError } from '@grpc/grpc-js';
-
+import { sendUnaryData } from '@grpc/grpc-js';
 import { IDoctorService } from '@/services/interfaces/IDoctor.service';
 import { ApplyDoctorMapper } from '@/dto/DoctorApplicationMapper';
-import { DoctorsMapper, SingleDoctorMapper } from '@/dto/DoctorsMapper';
-import { UserResponse } from '@/entities/user_interface';
 import {
-    IGrpcCall,
-    GrpcCallbacks,
-    ApplyDoctorCall,
-    ApplyDoctorResponse,
-    BlockingUser,
     Doctor,
-    DoctorsResponse,
-    GRPCCallback,
-    RepositorySingleDoctorResponsee,
-    SingleDoctorRequest,
-    SingleDoctorResponse,
     UpdateDoctorStatusAfterAdminApproveResponse,
     UpdateStatusCall,
     ApplyDoctorRequest,
+    HttpStatusCode,
 } from '@/types';
 import uploadToS3 from '@/config/s3';
+import { DoctorsMapper, SingleDoctorMapper } from '@/dto/DoctorsMapper';
 
 @injectable()
 export class DoctorController {
@@ -56,28 +42,28 @@ export class DoctorController {
             const body = req.body as unknown as ApplyDoctorRequest;
             const {
                 userId,
-                first_name,
-                last_name,
+                firstName,
+                lastName,
                 email,
-                phone_number,
-                license_number,
+                phoneNumber,
+                licenseNumber,
                 specialty,
                 qualifications,
-                medical_license_number,
-                agree_terms,
+                medicalLicenseNumber,
+                agreeTerms,
             } = body;
 
             const doctorData = {
                 userId,
-                firstName: first_name,
-                lastName: last_name,
+                firstName,
+                lastName,
                 email,
-                phoneNumber: phone_number,
-                licenseNumber: license_number,
+                phoneNumber,
+                licenseNumber,
                 specialty,
                 qualifications,
-                medicalLicenseNumber: medical_license_number,
-                agreeTerms: agree_terms === true || agree_terms === 'true',
+                medicalLicenseNumber,
+                agreeTerms: agreeTerms === true || agreeTerms === 'true',
                 documentUrls: [profileImageUrl, medicalLicenseUrl].filter(
                     Boolean
                 ),
@@ -91,59 +77,51 @@ export class DoctorController {
                 req.body
             ).toGrpcResponse();
 
-            res.status(200).json({ data: result });
+         
+
+            res.status(HttpStatusCode.OK).json({ data: result });
         } catch (error) {
             console.error('REST applyForDoctor error:', error);
-            res.status(500).json({ message: (error as Error).message });
+            res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({ message: (error as Error).message });
         }
     }
-    UpdateDoctorStatusAfterAdminApprove = async (
-        req: Request,
-        res: Response
-    ): Promise<void> => {
+    async UpdateDoctorStatusAfterAdminApprove(
+        call: UpdateStatusCall,
+        callback: sendUnaryData<UpdateDoctorStatusAfterAdminApproveResponse>
+    ): Promise<void> {
         try {
-            const { email } = req.body;
+            const { email } = call.request;
 
-            const response =
+            const result =
                 await this._doctorService.updateDoctorStatusAfterAdminApproval(
                     email
                 );
 
-            console.log(
-                'Doctor status updated after admin approval:',
-                response
-            );
-
-            res.json(response);
+            callback(null, result);
         } catch (error) {
-            console.error(
-                'REST UpdateDoctorStatusAfterAdminApprove error:',
-                error
+          
+            callback(
+                {
+                    code: 13,
+                    message: (error as Error).message,
+                },
+                null
             );
-            res.status(500).json({ message: (error as Error).message });
         }
-    };
+    }
 
     getAllDoctors = async (req: Request, res: Response): Promise<void> => {
         try {
-         
             const doctorsResponse = await this._doctorService.getAllDoctors();
             const doctors: Doctor[] = doctorsResponse.data;
 
-           
             const response = new DoctorsMapper(doctors).toGrpcResponse();
 
-            console.log(
-                'Check the response while fetching all doctors',
-                response
-            );
-
-         
-            res.status(200).json({ data: response });
+            res.status(HttpStatusCode.OK).json({ data: response });
         } catch (error) {
             console.error('REST getAllDoctors error:', error);
 
-            res.status(500).json({
+            res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
                 message:
                     error instanceof Error
                         ? error.message
@@ -159,15 +137,18 @@ export class DoctorController {
             const doctorResponse =
                 await this._doctorService.getDoctorByEmail(email);
 
+            if (!doctorResponse.doctor) {
+                throw new Error('Doctor not found');
+            }
             const response = new SingleDoctorMapper(
                 doctorResponse.doctor
             ).toGrpcResponse();
 
-            // Send JSON response
-            res.status(200).json({ data: response });
+           
+            res.status(HttpStatusCode.OK).json({ data: response });
         } catch (error) {
             console.error('REST getDoctorByEmail error:', error);
-            res.status(500).json({
+            res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
                 message:
                     error instanceof Error
                         ? error.message
@@ -183,10 +164,10 @@ export class DoctorController {
 
             const success = await this._doctorService.blockDoctor(email);
 
-            res.status(200).json({ success });
+            res.status(HttpStatusCode.OK).json({ success });
         } catch (error) {
             console.error('REST blockDoctor error:', error);
-            res.status(500).json({
+            res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
                 message:
                     error instanceof Error
                         ? error.message
@@ -219,10 +200,10 @@ export class DoctorController {
                 Number(limit)
             );
 
-            res.status(200).json({ data: response });
+            res.status(HttpStatusCode.OK).json({ data: response });
         } catch (error) {
             console.error('REST searchDoctors error:', error);
-            res.status(500).json({
+            res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
                 message:
                     error instanceof Error
                         ? error.message

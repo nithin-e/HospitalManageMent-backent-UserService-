@@ -1,5 +1,4 @@
-import { UserResponse } from '../../entities/user_interface';
-import { IRegisterService } from './IRegistretion.service';
+import { userData, UserResponse } from '../../entities/user_interface';
 
 type LoginResponse =
     | {
@@ -11,7 +10,7 @@ type LoginResponse =
           message: string;
       };
 
-export interface ILoginService  extends IRegisterService{
+export interface IAuthService {
     userLogin(loginData: {
         email: string;
         password: string;
@@ -31,4 +30,23 @@ export interface ILoginService  extends IRegisterService{
         name: string;
         phoneNumber: string;
     }): Promise<UserResponse>;
+
+    refreshTokens(refreshToken: string): Promise<
+        | {
+              success: true;
+              message: string;
+              accessToken: string;
+              refreshToken: string;
+          }
+        | {
+              success: false;
+              message: string;
+          }
+    >;
+
+    userRegistration(userData: userData): Promise<{
+        user: UserResponse;
+    }>;
+
+    checkUser(email: string, phoneNumber?: string): Promise<UserResponse>;
 }

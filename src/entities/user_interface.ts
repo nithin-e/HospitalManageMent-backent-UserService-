@@ -123,22 +123,36 @@ export interface checkResponse {}
 
 export interface signupResponse {
     user: UserResponse;
-    accessToken: string;
-    refreshToken: string;
+    // accessToken: string;
+    // refreshToken: string;
 }
 
+// export interface WebhookEventData {
+//     type: string;
+//     data: {
+//         object: {
+//             metadata?: {
+//                 email?: string;
+//                 transactionId?: string;
+//             };
+//             [key: string]: any;
+//         };
+//     };
+// }
+
+
 export interface WebhookEventData {
-    type: string;
-    data: {
-        object: {
-            metadata?: {
-                email?: string;
-                transactionId?: string;
-            };
-            [key: string]: any;
-        };
+  type: string;
+  data: {
+    object: {
+      metadata?: {
+        [key: string]: string | undefined; 
+      };
+      [key: string]: any;
     };
+  };
 }
+
 
 export interface WebhookResponse {
     success: boolean;

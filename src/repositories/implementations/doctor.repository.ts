@@ -1,11 +1,19 @@
-import { DoctorFormData, StatusUpdateResponse } from 'src/entities/user_interface';
-
+import {
+    DoctorFormData,
+    StatusUpdateResponse,
+} from 'src/entities/user_interface';
 import { DoctorDb } from '../../entities/doctor_schema';
 import { User } from '../../entities/user_schema';
 import { IApplyDoctorRepository } from '../interfaces/IDoctor.repository';
 import { injectable } from 'inversify';
 import { IDoctorRepository } from '../interfaces/IDoctors.repository';
-import { SearchParamss, SearchDoctorResponse, DoctorApplicationResult, RepositoryDoctorsResponse, RepositorySingleDoctorResponsee } from '@/types';
+import {
+    SearchParamss,
+    SearchDoctorResponse,
+    DoctorApplicationResult,
+    RepositoryDoctorsResponse,
+    RepositorySingleDoctorResponsee,
+} from '@/types';
 
 @injectable()
 export default class DoctorRepository
@@ -13,12 +21,9 @@ export default class DoctorRepository
 {
     async searchDoctors(params: SearchParamss): Promise<SearchDoctorResponse> {
         try {
-            console.log('Search doctors params:', params);
-
             const { searchQuery, sortBy, sortDirection, page, limit } = params;
             const query: Record<string, unknown> = {};
 
-            // Search query logic
             if (searchQuery && searchQuery.trim()) {
                 query.$or = [
                     { firstName: { $regex: searchQuery, $options: 'i' } },
@@ -34,11 +39,9 @@ export default class DoctorRepository
             if (sortBy) {
                 sortObj[sortBy] = sortDirection === 'asc' ? 1 : -1;
             } else {
-                // Default sort by createdAt descending
                 sortObj.createdAt = -1;
             }
 
-            // Execute all queries in parallel
             const [
                 doctors,
                 totalCount,
@@ -60,7 +63,6 @@ export default class DoctorRepository
                 DoctorDb.countDocuments({ ...query, status: 'declined' }),
             ]);
 
-            // Map to strict DoctorDTO format - INCLUDING createdAt
             const mappedDoctors = doctors.map((doctor) => ({
                 id: doctor._id.toString(),
                 firstName: doctor.firstName || '',
@@ -99,8 +101,6 @@ export default class DoctorRepository
         doctorData: DoctorFormData
     ): Promise<DoctorApplicationResult> => {
         try {
-            console.log('inside the repo1', doctorData);
-
             if (!doctorData.email || doctorData.email === '') {
                 return {
                     success: false,
@@ -119,7 +119,6 @@ export default class DoctorRepository
                     success: false,
                     message:
                         'You have already applied. Please wait for a response.',
-                    // No doctor property since it's optional
                 };
             }
 
@@ -128,7 +127,6 @@ export default class DoctorRepository
                     success: false,
                     message:
                         'Please use your logged-in email address for the application.',
-                    // No doctor property since it's optional
                 };
             }
 
@@ -149,7 +147,6 @@ export default class DoctorRepository
             });
 
             const savedDoctor = await newDoctor.save();
-            console.log('Doctor saved successfully:', savedDoctor._id);
 
             return {
                 success: true,
@@ -174,7 +171,6 @@ export default class DoctorRepository
                 success: false,
                 message:
                     'An error occurred while processing your application. Please try again later.',
-                // No doctor property since it's optional
             };
         }
     };
@@ -188,8 +184,6 @@ export default class DoctorRepository
                 { status: 'proccesing' },
                 { new: true }
             );
-
-            console.log('plase check this response in repo', updatedDoctor);
 
             if (!updatedDoctor) {
                 return {
@@ -229,9 +223,7 @@ export default class DoctorRepository
         email: string
     ): Promise<RepositorySingleDoctorResponsee> {
         try {
-            console.log('repo before res', email);
             const doctor = await DoctorDb.findOne({ email: email });
-            console.log('repo after res', doctor);
 
             return {
                 success: true,
@@ -249,6 +241,11 @@ export default class DoctorRepository
     async blockDoctor(doctorEmail: string): Promise<boolean> {
         try {
             const result = await DoctorDb.updateOne(
+                { email: doctorEmail },
+                { $set: { isActive: false } }
+            );
+
+            const res = await User.updateOne(
                 { email: doctorEmail },
                 { $set: { isActive: false } }
             );

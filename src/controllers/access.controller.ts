@@ -1,14 +1,15 @@
 import { sendUnaryData, ServerUnaryCall } from '@grpc/grpc-js';
 import { UserResponse } from '../entities/user_interface';
 import { IAccessService } from '@/services/interfaces/IAccess.service';
-import { inject } from 'inversify';
+import { inject, injectable } from 'inversify';
 import { TYPES } from '@/types/inversify';
 import { BlockingUser } from '@/types';
 
+@injectable()
 export class AccessController {
     constructor(
-        @inject(TYPES.UserBlockAndUnblockService)
-        private readonly _userBlockAndUnblockService: IAccessService
+        @inject(TYPES.AccessService)
+        private readonly _accessService: IAccessService
     ) {}
 
     async blockUser(
@@ -16,13 +17,9 @@ export class AccessController {
         callback: sendUnaryData<UserResponse>
     ): Promise<void> {
         try {
-            console.log('check this call request', call.request);
-
             const { id: userId } = call.request;
 
-            const result =
-                await this._userBlockAndUnblockService.blockUser(userId);
-            console.log('Block result:', result);
+            await this._accessService.blockUser(userId);
 
             callback(null, {
                 success: true,
@@ -38,11 +35,9 @@ export class AccessController {
         callback: sendUnaryData<UserResponse>
     ): Promise<void> {
         try {
-            console.log('check this call request', call.request);
             const { id: userId } = call.request;
 
-            const result =
-                await this._userBlockAndUnblockService.unblockUser(userId);
+            await this._accessService.unblockUser(userId);
 
             callback(null, {
                 success: true,

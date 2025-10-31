@@ -1,6 +1,6 @@
-import { UserResponse } from '../../entities/user_interface';
+import { registration, UserResponse } from '../../entities/user_interface';
 
-export interface ILoginRepository {
+export interface IAuthRepository {
     checkUserExists(userData: {
         email: string;
         password?: string;
@@ -25,4 +25,7 @@ export interface ILoginRepository {
         newPassword?: string;
         phoneNumber: string;
     }): Promise<UserResponse>;
+
+       saveUser(userData: registration): Promise<UserResponse>;
+        checkUser(email: string, phoneNumber: string): Promise<UserResponse>;
 }

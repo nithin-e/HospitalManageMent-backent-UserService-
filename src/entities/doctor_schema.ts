@@ -1,6 +1,5 @@
-// models/doctor/doctorModel.ts
+import { Doctor } from '@/types';
 import mongoose, { Document } from 'mongoose';
-import { Doctor } from '../interfaces/types';
 
 const doctorSchema = new mongoose.Schema<Doctor>({
     firstName: String,

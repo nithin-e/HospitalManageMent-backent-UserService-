@@ -1,18 +1,23 @@
-FROM node:20-alpine
+FROM node:22-alpine AS build
 
 WORKDIR /app
 
-# Copy package files first (for better caching)
 COPY package*.json ./
 
 RUN npm install
 
-# Copy the rest of the source code
 COPY . .
 
-# Build TypeScript
 RUN npm run build
 
-EXPOSE 3001
+FROM node:22-alpine AS runner
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm install --omit=dev
+
+COPY --from=build /app/dist ./dist
 
 CMD ["npm", "start"]

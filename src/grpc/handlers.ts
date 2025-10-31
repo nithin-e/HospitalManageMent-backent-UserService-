@@ -22,31 +22,15 @@ export const paymentController = container.get<PaymentController>(
 );
 
 export const accessController = container.get<AccessController>(
-    TYPES.UserBlockAndUnblockController
+    TYPES.AccessController
 );
 
 export const userGrpcHandlers = {
-    Register: authController.signup,
-    CheckUser: authController.checkUser,
-    LoginUser: authController.login,
-    changingUserPassWord: authController.changeUserPassword,
-    ResetPassword: authController.forgotPassword,
-    FetchAllDoctors: doctorController.getAllDoctors,
     UpdateDoctorStatusAfterAdminApprove:
-        doctorController.UpdateDoctorStatusAfterAdminApprove,
-    HandleStripeWebhookUpdateUser:
-        paymentController.handleStripeWebhookUpdateUser,
-    DeleteDoctorAfterAdminReject:
-        paymentController.deleteDoctorAfterAdminReject,
-    FetchDoctorDashBoardData: doctorController.getDoctorByEmail,
-    ApplyDoctor: doctorController.applyForDoctor,
-    // FetchAllUsers: userController.getAllUsers,
-    fectingUserProfileDatas: userController.getUserByEmail,
-    ChangingUserInfo: authController.updateUserInformation,
-    SearchUsers: userController.searchUsers,
-    SearchDoctors: doctorController.searchDoctors,
-    BlockUser: accessController.blockUser,
-    UnblockUser: accessController.unblockUser,
-    fecthingUserDetailsThroughSockets: userController.getUserDetailsViaSocket,
-    blockingDoctor: doctorController.blockDoctor,
+        doctorController.UpdateDoctorStatusAfterAdminApprove.bind(
+            doctorController
+        ),
+
+    BlockUser: accessController.blockUser.bind(accessController),
+    UnblockUser: accessController.unblockUser.bind(accessController),
 };

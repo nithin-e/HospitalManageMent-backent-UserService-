@@ -1,20 +1,19 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from '../../utility/bcrypt';
 import { userData, UserResponse } from '../../entities/user_interface';
-import { ILoginRepository } from '../../repositories/interfaces/ILogin.repository';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '@/types/inversify';
-import { IRegistrationRepository } from '@/repositories/interfaces/IRegistretion.repository';
-import { LoginResponse } from '@/types';
-import { ILoginService } from '../interfaces/ILogin.service';
+import { DecodedToken, LoginResponse } from '@/types';
+import { IAuthService } from '../interfaces/IAuthk.service';
+import { IAuthRepository } from '@/repositories/interfaces/IAuth.repository';
 
 @injectable()
-export  class AuthService implements ILoginService {
+export class AuthService implements IAuthService {
     private _JWT_REFRESH_SECRET: string;
 
     constructor(
-        @inject(TYPES.UserRepository)
-        private _userRepo: IRegistrationRepository & ILoginRepository,
+        @inject(TYPES.AuthRepository)
+        private _authRepository: IAuthRepository
     ) {
         if (!process.env.JWT_REFRESH_SECRET) {
             throw new Error(
@@ -28,14 +27,11 @@ export  class AuthService implements ILoginService {
         email: string;
         password: string;
         name?: string;
-        google_id: string;
+        googleId: string;
     }): Promise<LoginResponse> => {
         try {
-          
-            console.log('iam service layer');
-            
-
-            const response = await this._userRepo.checkUserExists(loginData);
+            const response =
+                await this._authRepository.checkUserExists(loginData);
             if (!response) {
                 throw new Error('No user data returned from repository');
             }
@@ -45,7 +41,6 @@ export  class AuthService implements ILoginService {
                 return { success: false, message: response.error };
             }
 
-            // Include role in the JWT payload
             const accessToken = jwt.sign(
                 {
                     userId: response._id,
@@ -80,12 +75,11 @@ export  class AuthService implements ILoginService {
         newPassword: string;
     }): Promise<UserResponse> => {
         try {
-  
             const hashedPassword = await bcrypt.securePassword(
                 loginData.newPassword
             );
 
-            const response = await this._userRepo.setUpForgotPassword({
+            const response = await this._authRepository.setUpForgotPassword({
                 email: loginData.email,
                 newPassword: hashedPassword,
             });
@@ -105,8 +99,8 @@ export  class AuthService implements ILoginService {
             const hashedPassword = await bcrypt.securePassword(
                 loginData.password
             );
-  
-            const response = await this._userRepo.changePassword({
+
+            const response = await this._authRepository.changePassword({
                 email: loginData.email,
                 newPassword: hashedPassword,
             });
@@ -125,7 +119,7 @@ export  class AuthService implements ILoginService {
         phoneNumber: string;
     }): Promise<UserResponse> => {
         try {
-            const response = await this._userRepo.updateUserInformation({
+            const response = await this._authRepository.updateUserInformation({
                 email: loginData.email,
                 name: loginData.name,
                 phoneNumber: loginData.phoneNumber,
@@ -143,47 +137,22 @@ export  class AuthService implements ILoginService {
         userData: userData
     ): Promise<{
         user: UserResponse;
-        accessToken: string;
-        refreshToken: string;
     }> => {
         try {
-            const { name, email, password, phone_number, google_id } = userData;
+            const { name, email, password, phoneNumber, google_id } = userData;
 
             const hashedPassword = await bcrypt.securePassword(password);
             const newUserData = {
                 name,
                 email,
                 password: hashedPassword,
-                phone_number,
+                phoneNumber,
                 google_id,
             };
 
-            const response = await this._userRepo.saveUser(newUserData);
-
-            const accessToken = jwt.sign(
-                {
-                    userId: response._id,
-                    email: response.email,
-                    role: response.role,
-                },
-                this._JWT_REFRESH_SECRET,
-                { expiresIn: '1h' }
-            );
-
-            const refreshToken = jwt.sign(
-                {
-                    userId: response._id,
-                    email: response.email,
-                    role: response.role,
-                },
-                this._JWT_REFRESH_SECRET,
-                { expiresIn: '7d' }
-            );
-
+            const response = await this._authRepository.saveUser(newUserData);
             return {
                 user: response,
-                accessToken,
-                refreshToken,
             };
         } catch (error) {
             console.log(error);
@@ -196,11 +165,62 @@ export  class AuthService implements ILoginService {
         phoneNumber: string
     ): Promise<UserResponse> => {
         try {
-            const user = await this._userRepo.checkUser(email, phoneNumber);
+            const user = await this._authRepository.checkUser(
+                email,
+                phoneNumber
+            );
 
             return user;
         } catch (error: unknown) {
             return { message: (error as Error).message };
+        }
+    };
+
+    refreshTokens = async (
+        refreshToken: string
+    ): Promise<
+        | {
+              success: true;
+              message: string;
+              accessToken: string;
+              refreshToken: string;
+          }
+        | { success: false; message: string }
+    > => {
+        const refreshTokenSecret =
+            process.env.JWT_REFRESH_SECRET || 'refresh-secret';
+        const accessTokenSecret = process.env.ACCESS_TOKEN || 'heal-nova';
+
+        try {
+            const decoded = jwt.verify(
+                refreshToken,
+                refreshTokenSecret
+            ) as DecodedToken;
+
+            const accessToken = jwt.sign(
+                { userId: decoded.userId, role: decoded.role },
+                accessTokenSecret,
+                { expiresIn: '15m' }
+            );
+
+            const newRefreshToken = jwt.sign(
+                { userId: decoded.userId, role: decoded.role },
+                refreshTokenSecret,
+                { expiresIn: '7d' }
+            );
+
+            return {
+                success: true as const,
+                message: 'Token refreshed successfully',
+                accessToken,
+                refreshToken: newRefreshToken,
+            };
+        } catch (error) {
+            console.error('❌ Refresh token error:', error);
+            return {
+                success: false as const,
+                message: 'Invalid or expired refresh token',
+            };
         }
     };
 }

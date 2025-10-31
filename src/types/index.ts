@@ -1,8 +1,7 @@
-import { UserDTO } from "@/dto/user.dto";
+import { UserDTO } from '@/dto/user.dto';
 import { ObjectId } from 'mongodb';
 import * as grpc from '@grpc/grpc-js';
 import { UserResponse } from 'src/entities/user_interface';
-
 
 export interface RepositoryUsersResponse {
     success?: boolean;
@@ -19,22 +18,33 @@ export interface SearchUserResponse {
     message?: string;
 }
 
+// export interface ApplyDoctorRequest {
+//     first_name: string;
+//     last_name: string;
+//     email: string;
+//     phone_number: string;
+//     license_number: string;
+//     specialty: string;
+//     qualifications: string;
+//     medical_license_number: string;
+//     agree_terms: boolean|string;
+//     document_urls: string[];
+//     userId: string;
+// }
 
 export interface ApplyDoctorRequest {
-    first_name: string;
-    last_name: string;
+    firstName: string; // Changed from first_name
+    lastName: string; // Changed from last_name
     email: string;
-    phone_number: string;
-    license_number: string;
+    phoneNumber: string; // Changed from phone_number
+    licenseNumber: string; // Changed from license_number
     specialty: string;
     qualifications: string;
-    medical_license_number: string;
-    agree_terms: boolean|string;
+    medicalLicenseNumber: string; // Changed from medical_license_number
+    agreeTerms: boolean | string; // Changed from agree_terms
     document_urls: string[];
     userId: string;
 }
-
-
 
 export interface ApplyDoctorResponse {
     success: boolean;
@@ -97,7 +107,6 @@ export interface UpdateDoctorStatusAfterAdminApproveResponse {
     success: boolean;
 }
 
-
 export const StatusCode = {
     OK: 200,
     Created: 201,
@@ -106,7 +115,7 @@ export const StatusCode = {
     Forbidden: 403,
     NotFound: 404,
     InternalServerError: 500,
-  };
+};
 
 export interface StatusUpdateResponse {
     success: boolean;
@@ -161,16 +170,36 @@ export interface RepositorySingleDoctorResponsee {
     message?: string;
 }
 
-// export interface User {
-//     id: string;
-//     name: string;
-//     email: string;
-//     phoneNumber?: string;
-//     googleId?: string;
-//     role?: 'user' | 'admin' | 'doctor';
-//     isActive: boolean;
-//     createdAt: Date;
-//     password?: string;
+export interface PaymentEvent {
+  type: string; 
+  data: PaymentEventData;
+}
+
+export interface PaymentEventData {
+  id: string;
+  amount_total: number;
+  currency: string;
+  customer_email?: string;
+  metadata?: {
+    type?: string;
+    patientEmail?: string;
+    appointmentDate?: string;
+    appointmentTime?: string;
+    notes?: string;
+    doctorName?: string;
+    specialty?: string;
+    userEmail?: string;
+    patientId?: string;
+    doctorId?: string;
+  };
+  customer_details?: {
+    name?: string;
+    email?: string;
+    phone?: string;
+  };
+  [key: string]: any;
+}
+
 // }
 export interface SingleDoctorRequest {
     email: string;
@@ -200,7 +229,7 @@ export interface ApplyDoctorRequest {
     specialty: string;
     qualifications: string;
     medical_license_number: string;
-    agree_terms: boolean|string
+    agree_terms: boolean | string;
     document_urls: string[];
     userId: string;
 }
@@ -358,7 +387,7 @@ export interface ApplyDoctorRequest {
     specialty: string;
     qualifications: string;
     medical_license_number: string;
-    agree_terms: boolean|string
+    agree_terms: boolean | string;
     document_urls: string[];
     userId: string;
 }
@@ -456,7 +485,7 @@ export interface SingleDoctorRequest {
 
 // ===== USER AND AUTHENTICATION TYPES =====
 export interface User {
-    _id: ObjectId; 
+    _id: ObjectId;
     name: string;
     email: string;
     password?: string;
@@ -492,7 +521,7 @@ export interface ApplyDoctorRequest {
     specialty: string;
     qualifications: string;
     medical_license_number: string;
-    agree_terms: boolean|string
+    agree_terms: boolean | string;
     document_urls: string[];
     userId: string;
 }
@@ -612,7 +641,7 @@ export interface RepositoryUserResponse {
 export interface LoginUserRequest {
     email: string;
     password: string;
-    google_id?: string;
+    googleId?: string;
     name?: string;
 }
 
@@ -712,7 +741,7 @@ export interface FormattedUserResponse {
         name: string;
         email: string;
         password: string;
-        phone_number: string;
+        phoneNumber: string;
         role: string;
         isActive: boolean;
     };
@@ -822,9 +851,9 @@ export type UpdateStatusCall = grpc.ServerUnaryCall<
 
 export type GRPCCallback<T> = grpc.sendUnaryData<T>;
 
-// src/interfaces/SignupUserEntity.ts
+
 export interface SignupUserEntity {
-    _id?: string | { toString(): string }; // mongoose ObjectId or string
+    _id?: string | { toString(): string }; 
     name?: string;
     email?: string;
     password?: string;
@@ -834,7 +863,7 @@ export interface SignupUserEntity {
     googleId?: string;
     role?: string;
 
-    // When using Mongoose, sometimes data is inside _doc
+   
     _doc?: {
         _id?: string | { toString(): string };
         name?: string;
@@ -846,4 +875,20 @@ export interface SignupUserEntity {
         googleId?: string;
         role?: string;
     };
+}
+
+
+export enum HttpStatusCode {
+    OK = 200,
+    CREATED = 201,
+    BAD_REQUEST = 400,
+    UNAUTHORIZED = 401,
+    FORBIDDEN = 403,
+    NOT_FOUND = 404,
+    CONFLICT = 409,
+    INTERNAL_SERVER_ERROR = 500,
+}
+export interface DecodedToken {
+  userId: string;
+  role: string;
 }

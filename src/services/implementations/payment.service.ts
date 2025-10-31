@@ -14,15 +14,21 @@ export default class PaymentService implements IDoctorPaymentService {
 
     handleStripeWebhookUpdateUser = async (
         eventType: string,
-        eventData: WebhookEventData
+        eventData: any 
     ): Promise<UserResponse> => {
         try {
-            const email = eventData.data.object.metadata?.email as string;
-            const transactionId = eventData.data.object.metadata?.transactionId;
+            const email = eventData.metadata?.email as string;
+            const transactionId = eventData.metadata?.transactionId;
+
+            if (!email) {
+                throw new Error('Missing email in Stripe metadata');
+            }
+
             const response =
                 await this._updateDoctorAndUserAfterPaymentRepo.handleStripeWebhookUpdateUser(
                     email
                 );
+
             RabbitMQPublisher.publish('user.notification', {
                 email,
                 transactionId,

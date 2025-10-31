@@ -1,9 +1,6 @@
-import { ServerUnaryCall, sendUnaryData, ServiceError } from '@grpc/grpc-js';
-import * as grpc from '@grpc/grpc-js';
 import {
     checkResponse,
     LoginResponse,
-    LoginUserResponse,
     signupResponse,
     userData,
     UserResponse,
@@ -12,29 +9,29 @@ import { inject, injectable } from 'inversify';
 import { TYPES } from '@/types/inversify';
 import { LoginUserMapper } from '@/dto/LoginUserMapper';
 import { SignupUserMapper } from '@/dto/SignupUserMapper';
-import { forgetData, LoginUserRequest } from '@/types';
-import { ILoginService } from '@/services/interfaces/ILogin.service';
+import { forgetData, HttpStatusCode, LoginUserRequest } from '@/types';
+import { IAuthService } from '@/services/interfaces/IAuthk.service';
 import { Response, Request } from 'express';
 
 @injectable()
 export class AuthController {
     constructor(
         @inject(TYPES.AuthService)
-        private readonly _userService: ILoginService
+        private readonly _authService: IAuthService
     ) {}
 
     login = async (req: Request, res: Response) => {
         try {
-            const { email, password, google_id, name }: LoginUserRequest =
+            const { email, password, googleId, name }: LoginUserRequest =
                 req.body;
 
             const loginData: LoginUserRequest = {
                 email,
                 password,
-                google_id,
+                googleId,
                 name,
             };
-            const response = (await this._userService.userLogin(
+            const response = (await this._authService.userLogin(
                 loginData
             )) as LoginResponse;
 
@@ -42,13 +39,12 @@ export class AuthController {
                 response
             ).toGrpcResponse();
 
-           
-            
-
-            res.json(mappedResponse);
+            res.status(HttpStatusCode.OK).json(mappedResponse);
         } catch (error) {
             console.error('REST login error:', error);
-            res.status(500).json({ message: (error as Error).message });
+            res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+                message: (error as Error).message,
+            });
         }
     };
 
@@ -60,11 +56,13 @@ export class AuthController {
             }
 
             const loginData = { email, newPassword };
-            const response = await this._userService.forgotPassword(loginData);
-            res.json(response);
+            const response = await this._authService.forgotPassword(loginData);
+            res.status(HttpStatusCode.OK).json(response);
         } catch (error) {
             console.error('REST forgot password error:', error);
-            res.status(500).json({ message: (error as Error).message });
+            res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+                message: (error as Error).message,
+            });
         }
     };
 
@@ -72,17 +70,18 @@ export class AuthController {
         try {
             const { email, password }: forgetData = req.body;
 
-            // Call the service layer
             const response: UserResponse =
-                await this._userService.changeUserPassword({
+                await this._authService.changeUserPassword({
                     email,
                     password,
                 });
 
-            res.json(response);
+            res.status(HttpStatusCode.OK).json(response);
         } catch (error) {
             console.error('REST changeUserPassword error:', error);
-            res.status(500).json({ message: (error as Error).message });
+            res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+                message: (error as Error).message,
+            });
         }
     };
 
@@ -90,27 +89,29 @@ export class AuthController {
         try {
             const { email, name, phoneNumber }: forgetData = req.body;
 
-            const response = await this._userService.updateUserInformation({
+            const response = await this._authService.updateUserInformation({
                 email,
                 name,
                 phoneNumber,
             });
 
             const userResponse: UserResponse = { success: response.success };
-            res.json(userResponse);
+            res.status(HttpStatusCode.OK).json(userResponse);
         } catch (error) {
             console.error('REST updateUserInformation error:', error);
-            res.status(500).json({ message: (error as Error).message });
+            res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+                message: (error as Error).message,
+            });
         }
     };
 
     signup = async (req: Request, res: Response) => {
         try {
-            const { name, email, password, phone_number, google_id }: userData =
+            const { name, email, password, phoneNumber, google_id }: userData =
                 req.body;
-            const userData = { name, email, password, phone_number, google_id };
+            const userData = { name, email, password, phoneNumber, google_id };
 
-            const response = await this._userService.userRegistration(userData);
+            const response = await this._authService.userRegistration(userData);
 
             const userMessage = new SignupUserMapper(
                 response.user
@@ -118,15 +119,14 @@ export class AuthController {
 
             const registerResponse: signupResponse = {
                 user: userMessage,
-                accessToken: response.accessToken,
-                refreshToken: response.refreshToken,
             };
 
-            // Send JSON response
-            res.json(registerResponse);
+            res.status(HttpStatusCode.OK).json(registerResponse);
         } catch (error) {
             console.error('REST signup error:', error);
-            res.status(500).json({ message: (error as Error).message });
+            res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+                message: (error as Error).message,
+            });
         }
     };
 
@@ -134,15 +134,40 @@ export class AuthController {
         try {
             const { email, phoneNumber }: userData = req.body;
 
-            const response: checkResponse = await this._userService.checkUser(
+            const response: checkResponse = await this._authService.checkUser(
                 email,
                 phoneNumber
             );
 
-            res.json(response);
+            res.status(HttpStatusCode.OK).json(response);
         } catch (error) {
             console.error('REST checkUser error:', error);
-            res.status(500).json({ message: (error as Error).message });
+            res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+                message: (error as Error).message,
+            });
         }
+    };
+    handleRefreshToken = async (req: Request, res: Response) => {
+        const { token: refreshToken } = req.body;
+
+        if (!refreshToken) {
+            res.status(HttpStatusCode.UNAUTHORIZED).json({
+                success: false,
+                message: 'No refresh token provided',
+            });
+            return;
+        }
+
+        const response = await this._authService.refreshTokens(refreshToken);
+
+        if (!response.success) {
+            res.status(HttpStatusCode.UNAUTHORIZED).json({
+                success: false,
+                message: response.message,
+            });
+            return;
+        }
+
+        res.status(HttpStatusCode.OK).json(response);
     };
 }

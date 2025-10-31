@@ -1,6 +1,5 @@
-// src/mappers/SignupUserMapper.ts
+import { SignupUserEntity } from "@/types";
 
-import { SignupUserEntity } from '@/interfaces/types';
 
 export class SignupUserMapper {
     constructor(private readonly rawUser: SignupUserEntity) {}

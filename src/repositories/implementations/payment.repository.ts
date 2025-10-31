@@ -6,15 +6,8 @@ import { injectable } from 'inversify';
 
 @injectable()
 export default class PaymentRepository implements IDoctorPaymentRepository {
-    handleStripeWebhookUpdateUser = async (
-        email: string
-    ): Promise<UserResponse> => {
+    async handleStripeWebhookUpdateUser(email: string): Promise<UserResponse> {
         try {
-            console.log(
-                'Processing payment update for email inside repo:',
-                email
-            );
-
             const updateRole = await User.findOneAndUpdate(
                 { email },
                 { $set: { role: 'doctor' } },
@@ -26,7 +19,11 @@ export default class PaymentRepository implements IDoctorPaymentRepository {
                 { $set: { status: 'completed' } },
                 { new: true }
             );
-            return { success: true };
+
+            return {
+                success: true,
+                message: 'User and doctor updated successfully',
+            };
         } catch (error) {
             console.error(
                 'Error updating doctor and user after payment:',
@@ -34,7 +31,7 @@ export default class PaymentRepository implements IDoctorPaymentRepository {
             );
             throw error;
         }
-    };
+    }
 
     deleteDoctorAfterAdminReject = async (
         email: string

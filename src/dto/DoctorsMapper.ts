@@ -1,8 +1,6 @@
-import {
-    DoctorsResponse,
-    Doctor,
-    RepositorySingleDoctorResponsee,
-} from '@/interfaces/types';
+
+
+import { Doctor, DoctorsResponse, RepositorySingleDoctorResponsee } from "@/types";
 
 export class DoctorsMapper {
     constructor(private readonly doctors: Doctor[]) {}

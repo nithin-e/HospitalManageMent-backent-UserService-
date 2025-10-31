@@ -1,9 +1,6 @@
-// src/mappers/ApplyDoctorMapper.ts
-import {
-    ApplyDoctorResponse,
-    ApplyDoctorRequest,
-    DoctorApplicationResponse,
-} from '@/interfaces/types';
+import { ApplyDoctorRequest, ApplyDoctorResponse, DoctorApplicationResponse } from "@/types";
+
+
 
 export class ApplyDoctorMapper {
     constructor(

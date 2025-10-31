@@ -1,15 +1,20 @@
 import { mapDoctorToDTO } from '../../dto/doctor.mapper';
 import { IDoctorRepository } from '../../repositories/interfaces/IDoctors.repository';
-import { inject } from 'inversify';
+import { inject, injectable } from 'inversify';
 import { TYPES } from '@/types/inversify';
 import { IDoctorService } from '../interfaces/IDoctor.service';
 import { DoctorFormData } from '@/entities/user_interface';
 import { IApplyDoctorRepository } from '@/repositories/interfaces/IDoctor.repository';
-import { DoctorApplicationResponse, RepositoryDoctorsResponse, RepositorySingleDoctorResponsee, SearchDoctorResponse, StatusUpdateResponse } from '@/types';
+import {
+    DoctorApplicationResponse,
+    RepositoryDoctorsResponse,
+    RepositorySingleDoctorResponsee,
+    SearchDoctorResponse,
+    StatusUpdateResponse,
+} from '@/types';
 
-export default class DoctorService
-    implements IDoctorService
-{
+@injectable()
+export default class DoctorService implements IDoctorService {
     constructor(
         @inject(TYPES.DoctorRepository)
         private readonly _doctorRepo: IDoctorRepository & IApplyDoctorRepository
@@ -29,7 +34,6 @@ export default class DoctorService
         }
     };
 
-    
     searchDoctors = async (
         searchQuery: string = '',
         sortBy: string = 'createdAt',
@@ -85,6 +89,8 @@ export default class DoctorService
         doctorData: DoctorFormData
     ): Promise<DoctorApplicationResponse> => {
         try {
+            console.log('service layar here---', doctorData);
+
             const {
                 userId,
                 firstName,
@@ -149,9 +155,14 @@ export default class DoctorService
                     message: response.message,
                 };
             } else {
-                throw new Error(
-                    response.message || 'Doctor application failed'
-                );
+                return {
+                    id: '',
+                    firstName: '',
+                    lastName: '',
+                    email: '',
+                    status: 'failed',
+                    message: response.message,
+                };
             }
         } catch (error) {
             console.log('Error in use case:', error);
@@ -184,4 +195,3 @@ export default class DoctorService
         }
     };
 }
-

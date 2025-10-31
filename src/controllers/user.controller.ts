@@ -1,10 +1,14 @@
 import * as grpc from '@grpc/grpc-js';
-
 import { inject, injectable } from 'inversify';
 import { TYPES } from '@/types/inversify';
 import { UserMapper } from '@/dto/UserMapper';
 import { UserSocketMapper } from '@/dto/UserSocketMapper';
-import { IGrpcCall, GrpcCallbacks, FormattedUsersResponse } from '@/types';
+import {
+    IGrpcCall,
+    GrpcCallbacks,
+    FormattedUsersResponse,
+    HttpStatusCode,
+} from '@/types';
 import { IUserService } from '@/services/interfaces/IUser.service';
 import { RequestHandler } from 'express';
 
@@ -20,10 +24,12 @@ export class UserController {
             const formattedResponse: FormattedUsersResponse = {
                 users: response,
             };
-            res.json(formattedResponse);
+            res.status(HttpStatusCode.OK).json(formattedResponse);
         } catch (error) {
             console.error('Error fetching user data (REST):', error);
-            res.status(500).json({ message: (error as Error).message });
+            res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+                message: (error as Error).message,
+            });
         }
     };
 
@@ -38,10 +44,12 @@ export class UserController {
 
             const response = await this._userService.getUserByEmail(email);
             const mappedResponse = new UserMapper(response).toGrpcResponse();
-            res.json(mappedResponse);
+            res.status(HttpStatusCode.OK).json(mappedResponse);
         } catch (error) {
             console.error('REST getUserByEmail error:', error);
-            res.status(500).json({ message: (error as Error).message });
+            res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+                message: (error as Error).message,
+            });
         }
     };
 
@@ -65,9 +73,11 @@ export class UserController {
                 limit
             );
 
-            res.json(response);
+            res.status(HttpStatusCode.OK).json(response);
         } catch (error) {
-            res.status(500).json({ message: (error as Error).message });
+            res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+                message: (error as Error).message,
+            });
         }
     };
 
@@ -96,7 +106,6 @@ export class UserController {
                 code: grpc.status.INTERNAL,
                 message: (error as Error).message,
             };
-            // callback(grpcError, null);
         }
     };
 }
