@@ -28,7 +28,7 @@ userRoute.post('/register', authController.signup);
 userRoute.post('/loginUser', authController.login);
 userRoute.post('/checkUser', authController.checkUser);
 userRoute.post('/ChangingUserInfo', authController.updateUserInformation);
-userRoute.post('/changeUserPassword', authController.changeUserPassword);
+userRoute.post('/changing_UserPassWord', authController.changeUserPassword);
 userRoute.post('/forgetPassword', authController.forgotPassword);
 userRoute.get('/fetchAllUser', userController.getAllUsers);
 userRoute.post('/fectingUserProfileData', userController.getUserByEmail);
@@ -47,11 +47,15 @@ userRoute.get('/fecthAllDoctors', doctorController.getAllDoctors);
 userRoute.post('/fetchDoctorDashBoardData', doctorController.getDoctorByEmail);
 userRoute.post('/blockingDoctor', doctorController.blockDoctor);
 userRoute.get('/fecthAllDoctors', doctorController.searchDoctors);
-
 userRoute.get('/doctorPagination', doctorController.searchDoctors);
-
 userRoute.post(
     '/refresh',
     authController.handleRefreshToken.bind(authController)
 );
+
+userRoute.post(
+    '/deleteDoctorAfterRejection',
+    doctorController.deleteDoctorAfterAdminReject
+);
+
 export default userRoute;

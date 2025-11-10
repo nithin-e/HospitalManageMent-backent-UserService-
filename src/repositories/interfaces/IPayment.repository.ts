@@ -1,6 +1,5 @@
 import { UserResponse } from '../../entities/user_interface';
 
-export interface IDoctorPaymentRepository {
+export interface IPaymentRepository {
     handleStripeWebhookUpdateUser(email: string): Promise<UserResponse>;
-    deleteDoctorAfterAdminReject(email: string): Promise<UserResponse>;
 }

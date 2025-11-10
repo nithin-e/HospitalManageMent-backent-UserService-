@@ -11,6 +11,7 @@ import {
 } from '@/types';
 import { IUserService } from '@/services/interfaces/IUser.service';
 import { RequestHandler } from 'express';
+import { MESSAGES } from '@/constants/messages.constant';
 
 @injectable()
 export class UserController {
@@ -26,9 +27,9 @@ export class UserController {
             };
             res.status(HttpStatusCode.OK).json(formattedResponse);
         } catch (error) {
-            console.error('Error fetching user data (REST):', error);
+            console.error(MESSAGES.USER.FETCH_FAILED, error);
             res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-                message: (error as Error).message,
+                message: MESSAGES.USER.FETCH_FAILED,
             });
         }
     };
@@ -38,17 +39,18 @@ export class UserController {
             const { email } = req.body as { email: string };
 
             if (!email) {
-                res.status(400).json({ message: 'Email is required' });
+                res.status(HttpStatusCode.BAD_REQUEST).json({
+                    message: MESSAGES.USER.EMAIL_REQUEIRED,
+                });
                 return;
             }
 
             const response = await this._userService.getUserByEmail(email);
-            const mappedResponse = new UserMapper(response).toGrpcResponse();
-            res.status(HttpStatusCode.OK).json(mappedResponse);
+            res.status(HttpStatusCode.OK).json(response);
         } catch (error) {
-            console.error('REST getUserByEmail error:', error);
+            console.error(MESSAGES.USER.FETCH_FAILED, error);
             res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-                message: (error as Error).message,
+                message: MESSAGES.USER.NOT_FOUND,
             });
         }
     };
@@ -56,27 +58,33 @@ export class UserController {
     searchUsers: RequestHandler = async (req, res, next) => {
         try {
             const {
-                searchQuery = '',
+                q = '',
                 sortBy = 'createdAt',
                 sortDirection = 'desc',
                 role = '',
-                page = 1,
-                limit = 50,
-            } = req.body;
+                page = '1',
+                limit = '5',
+                status = '',
+            } = req.query;
+
+            const pageNum = parseInt(page as string, 10) || 1;
+            const limitNum = parseInt(limit as string, 10) || 5;
 
             const response = await this._userService.searchUsers(
-                searchQuery,
-                sortBy,
-                sortDirection,
-                role,
-                page,
-                limit
+                q as string,
+                sortBy as string,
+                sortDirection as 'asc' | 'desc',
+                role as string,
+                pageNum,
+                limitNum,
+                status as string
             );
 
             res.status(HttpStatusCode.OK).json(response);
         } catch (error) {
+            console.error(MESSAGES.USER.SEARCH_FAILED, error);
             res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-                message: (error as Error).message,
+                message: MESSAGES.USER.SEARCH_FAILED,
             });
         }
     };
@@ -89,19 +97,18 @@ export class UserController {
             const { patientId } = call.request;
 
             if (!patientId) {
-                throw new Error('Patient ID is required');
+                throw new Error(MESSAGES.USER.EMAIL_REQUEIRED);
             }
 
             const patientResponse =
                 await this._userService.getUserDetailsViaSocket(patientId);
 
-            const userData = new UserSocketMapper(
-                patientResponse
-            ).toGrpcResponse();
+            // const userData = new UserSocketMapper(
+            //     patientResponse
+            // ).toGrpcResponse();
 
-            callback(null, userData);
+            callback(null, patientResponse);
         } catch (error) {
-            console.log('Error fetching user data:', error);
             const grpcError = {
                 code: grpc.status.INTERNAL,
                 message: (error as Error).message,

@@ -1,27 +1,29 @@
-import { IDoctorPaymentService } from '../interfaces/IPayment.service';
-import { UserResponse, WebhookEventData } from '../../entities/user_interface';
-import { IDoctorPaymentRepository } from '../../repositories/interfaces/IPayment.repository';
+import { UserResponse } from '../../entities/user_interface';
+import { IPaymentRepository } from '../../repositories/interfaces/IPayment.repository';
 import { RabbitMQPublisher } from '../../event/publisher';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '@/types/inversify';
+import { MESSAGES } from '@/constants/messages.constant';
+import { IPaymentService } from '../interfaces/IPayment.service';
 
 @injectable()
-export default class PaymentService implements IDoctorPaymentService {
+export default class PaymentService implements IPaymentService {
     constructor(
         @inject(TYPES.DoctorPaymentRepository)
-        private _updateDoctorAndUserAfterPaymentRepo: IDoctorPaymentRepository
+        private _updateDoctorAndUserAfterPaymentRepo: IPaymentRepository
     ) {}
 
     handleStripeWebhookUpdateUser = async (
         eventType: string,
-        eventData: any 
+        eventData: any
     ): Promise<UserResponse> => {
         try {
-            const email = eventData.metadata?.email as string;
-            const transactionId = eventData.metadata?.transactionId;
+            const email = eventData.data?.object?.metadata?.email as string;
+            const transactionId =
+                eventData.data?.object?.metadata?.transactionId;
 
             if (!email) {
-                throw new Error('Missing email in Stripe metadata');
+                throw new Error(MESSAGES.PAYMENT.MISSING_METADATA);
             }
 
             const response =
@@ -36,29 +38,25 @@ export default class PaymentService implements IDoctorPaymentService {
 
             return response;
         } catch (error) {
-            console.error(
-                'Error in update doctor and user after payment use case:',
-                error
+            console.error(MESSAGES.PAYMENT.WEBHOOK_ERROR, error);
+            throw new Error(
+                (error as Error).message || MESSAGES.PAYMENT.UPDATE_FAILED
             );
-            throw error;
         }
     };
 
-    deleteDoctorAfterRejection = async (
-        email: string
-    ): Promise<UserResponse> => {
-        try {
-            const response =
-                await this._updateDoctorAndUserAfterPaymentRepo.deleteDoctorAfterAdminReject(
-                    email
-                );
-            return response;
-        } catch (error) {
-            console.error(
-                'Error in update doctor and user after payment use case:',
-                error
-            );
-            throw error;
-        }
-    };
+    // deleteDoctorAfterRejection = async (
+    //     email: string
+    // ): Promise<UserResponse> => {
+    //     try {
+    //         const response =
+    //             await this._updateDoctorAndUserAfterPaymentRepo.deleteDoctorAfterAdminReject(
+    //                 email
+    //             );
+    //         return response;
+    //     } catch (error) {
+    //         console.error(MESSAGES.PAYMENT.DELETE_FAILED, error);
+    //         throw new Error(MESSAGES.PAYMENT.DELETE_FAILED);
+    //     }
+    // };
 }

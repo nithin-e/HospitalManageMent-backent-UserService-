@@ -1,6 +1,4 @@
-
-import { Doctor } from "@/types";
-
+import { Doctor } from '@/types';
 
 export interface DoctorDTO {
     id: string;

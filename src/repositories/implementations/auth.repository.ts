@@ -5,15 +5,15 @@ import { User } from '../../entities/user_schema';
 import { BaseRepository } from './base.repository';
 import type { User as UserType } from '../../entities/user_schema';
 import { registration, UserResponse } from '@/entities/user_interface';
+import { MESSAGES } from '@/constants/messages.constant';
 
 @injectable()
 export class AuthRepository
     extends BaseRepository<UserType>
     implements IAuthRepository
 {
-
-     constructor() {
-        super(User)
+    constructor() {
+        super(User);
     }
 
     checkUser = async (
@@ -26,14 +26,14 @@ export class AuthRepository
             if (CheckingUser) {
                 return {
                     success: false,
-                    message: 'user already registered with this email',
+                    message: MESSAGES.AUTH.EMAIL_ALREADY_REGISTERED,
                 };
             }
 
-            return { success: true, message: 'user not registered' };
+            return { success: true, message: MESSAGES.AUTH.USER_NOT_FOUND };
         } catch (error) {
-            console.log('..error occuring', error);
-            throw new Error('Error checking user registration');
+            console.error('Error checking user registration:', error);
+            throw new Error(MESSAGES.ERROR.REGISTER_FAILED);
         }
     };
 
@@ -55,11 +55,11 @@ export class AuthRepository
             }
 
             if (!userData.google_id && existingUser) {
-                const error = new Error(
-                    `User with email ${userData.email} already exists`
+                const duplicateError = new Error(
+                    MESSAGES.AUTH.EMAIL_ALREADY_REGISTERED
                 );
-                error.name = 'DuplicateEmailError';
-                throw error;
+                duplicateError.name = 'DuplicateEmailError';
+                throw duplicateError;
             }
 
             const newUser = new User({
@@ -81,37 +81,13 @@ export class AuthRepository
                 error instanceof Error &&
                 ((error.name === 'MongoServerError' &&
                     'code' in error &&
-                    (error as any).code === 11000) ||
+                    error.code === 11000) ||
                     error.name === 'DuplicateEmailError')
             ) {
-                if (userData.google_id || userData.google_id) {
-                    try {
-                        const existingUser = await User.findOne({
-                            email: userData.email,
-                        });
-                        if (existingUser) {
-                            console.log(
-                                'Returning existing user for Google sign-in:',
-                                existingUser
-                            );
-                            return existingUser as UserResponse;
-                        }
-                    } catch (findError) {
-                        console.error(
-                            'Error finding existing user:',
-                            findError
-                        );
-                    }
-                }
-
-                const duplicateError = new Error(
-                    `User with email ${userData.email} already exists`
-                );
-                duplicateError.name = 'DuplicateEmailError';
-                throw duplicateError;
+                throw new Error(MESSAGES.AUTH.EMAIL_ALREADY_REGISTERED);
             }
 
-            throw new Error((error as Error).message);
+            throw new Error(MESSAGES.ERROR.REGISTER_FAILED);
         }
     };
 
@@ -140,11 +116,8 @@ export class AuthRepository
                 success: true,
             };
         } catch (error) {
-            console.error(
-                'Error in change user information repository:',
-                error
-            );
-            throw error;
+            console.error('Error updating user information:', error);
+            throw new Error(MESSAGES.ERROR.UPDATE_INFO_FAILED);
         }
     };
 
@@ -172,8 +145,8 @@ export class AuthRepository
                 success: true,
             };
         } catch (error) {
-            console.error('Error in change password repository:', error);
-            throw error;
+            console.error('Error changing password:', error);
+            throw new Error(MESSAGES.ERROR.CHANGE_PASSWORD_FAILED);
         }
     };
 
@@ -187,9 +160,7 @@ export class AuthRepository
             const user = await this.findOne({ email });
 
             if (!user) {
-                return {
-                    success: false,
-                };
+                return { success: false, message: MESSAGES.USER.NOT_FOUND };
             }
 
             if (userData.newPassword) {
@@ -201,8 +172,8 @@ export class AuthRepository
                 success: true,
             };
         } catch (error) {
-            console.error('Error in forget password repo:', error);
-            throw error;
+            console.error('Error in forgot password:', error);
+            throw new Error(MESSAGES.ERROR.FORGOT_PASSWORD_FAILED);
         }
     };
 
@@ -238,7 +209,10 @@ export class AuthRepository
             const existingUser = await this.findByEmail(userData.email);
 
             if (!existingUser) {
-                return { success: false, error: 'Invalid credentials' };
+                return {
+                    success: false,
+                    message: MESSAGES.AUTH.INVALID_CREDENTIALS,
+                };
             }
 
             const isPasswordValid = await bcrypt.matchPassword(
@@ -247,13 +221,16 @@ export class AuthRepository
             );
 
             if (!isPasswordValid) {
-                return { success: false, error: 'Invalid credentials' };
+                return {
+                    success: false,
+                    message: MESSAGES.AUTH.INVALID_CREDENTIALS,
+                };
             }
 
             return existingUser as UserResponse;
         } catch (error) {
-            console.error('Login error in repo:', error);
-            throw error;
+            console.error('Error checking user existence:', error);
+            throw new Error(MESSAGES.ERROR.LOGIN_FAILED);
         }
     };
 }

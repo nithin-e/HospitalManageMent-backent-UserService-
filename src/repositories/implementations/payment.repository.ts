@@ -1,11 +1,12 @@
 import { User } from '../../entities/user_schema';
 import { DoctorDb } from '../../entities/doctor_schema';
-import { IDoctorPaymentRepository } from '../interfaces/IPayment.repository';
+import {  IPaymentRepository } from '../interfaces/IPayment.repository';
 import { UserResponse } from '../../entities/user_interface';
 import { injectable } from 'inversify';
+import { MESSAGES } from '@/constants/messages.constant';
 
 @injectable()
-export default class PaymentRepository implements IDoctorPaymentRepository {
+export default class PaymentRepository implements IPaymentRepository {
     async handleStripeWebhookUpdateUser(email: string): Promise<UserResponse> {
         try {
             const updateRole = await User.findOneAndUpdate(
@@ -22,30 +23,11 @@ export default class PaymentRepository implements IDoctorPaymentRepository {
 
             return {
                 success: true,
-                message: 'User and doctor updated successfully',
+                message: MESSAGES.PAYMENT.UPDATE_SUCCESS,
             };
         } catch (error) {
-            console.error(
-                'Error updating doctor and user after payment:',
-                error
-            );
-            throw error;
+            console.error(MESSAGES.PAYMENT.UPDATE_FAILED, error);
+            throw new Error(MESSAGES.PAYMENT.UPDATE_FAILED);
         }
     }
-
-    deleteDoctorAfterAdminReject = async (
-        email: string
-    ): Promise<UserResponse> => {
-        try {
-            await DoctorDb.findOneAndDelete({ email });
-
-            return { success: true };
-        } catch (error) {
-            console.error(
-                'Error updating doctor and user after payment:',
-                error
-            );
-            throw error;
-        }
-    };
 }

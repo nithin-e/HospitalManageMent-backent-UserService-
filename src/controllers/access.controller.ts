@@ -4,6 +4,7 @@ import { IAccessService } from '@/services/interfaces/IAccess.service';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '@/types/inversify';
 import { BlockingUser } from '@/types';
+import { MESSAGES } from '@/constants/messages.constant';
 
 @injectable()
 export class AccessController {
@@ -23,10 +24,10 @@ export class AccessController {
 
             callback(null, {
                 success: true,
-                message: 'User blocked successfully',
+                message:MESSAGES.USER.BLOCK_SUCCESS,
             });
         } catch (error) {
-            console.error('Error blocking user:', error);
+            console.error(MESSAGES.ERROR.BLOCK_FAILED, error);
         }
     }
 
@@ -41,10 +42,10 @@ export class AccessController {
 
             callback(null, {
                 success: true,
-                message: 'User unBlocked successfully',
+                message: MESSAGES.USER.UNBLOCK_SUCCESS,
             });
         } catch (error) {
-            console.error('Error unblocking user:', error);
+            console.error(MESSAGES.ERROR.UNBLOCK_FAILED, error);
         }
     }
 }

@@ -1,14 +1,5 @@
+import { LoginUserResponse, SignupResponse } from '@/types';
 import { userData, UserResponse } from '../../entities/user_interface';
-
-type LoginResponse =
-    | {
-          user: UserResponse;
-          accessToken: string;
-          refreshToken: string;
-      }
-    | {
-          message: string;
-      };
 
 export interface IAuthService {
     userLogin(loginData: {
@@ -16,7 +7,7 @@ export interface IAuthService {
         password: string;
         google_id?: string;
         name?: string;
-    }): Promise<LoginResponse>;
+    }): Promise<LoginUserResponse>;
     forgotPassword(loginData: {
         email: string;
         newPassword: string;
@@ -44,9 +35,7 @@ export interface IAuthService {
           }
     >;
 
-    userRegistration(userData: userData): Promise<{
-        user: UserResponse;
-    }>;
+    userRegistration(userData: userData): Promise<SignupResponse>;
 
     checkUser(email: string, phoneNumber?: string): Promise<UserResponse>;
 }

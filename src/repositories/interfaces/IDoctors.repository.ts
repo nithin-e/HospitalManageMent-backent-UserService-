@@ -1,33 +1,23 @@
+import { StatusUpdateResponse, UserResponse } from '@/entities/user_interface';
 import {
     RepositoryDoctorsResponse,
     RepositorySingleDoctorResponsee,
-    SearchParamss,
+    Searchparams,
     SearchDoctorResponse,
+    DoctorFormData,
 } from '@/types';
-
-export interface Doctor {
-    id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    phoneNumber: string;
-    licenseNumber: string;
-    medicalLicenseNumber: string;
-    specialty: string;
-    qualifications: string;
-    agreeTerms: boolean;
-    profileImageUrl?: string;
-    medicalLicenseUrl: string;
-    status: 'completed' | 'processing';
-    createdAt: string;
-}
-
-export interface FetchAllDoctorsResponse {
-    doctors: Doctor[];
-}
+import { DoctorApplicationResponse } from '@/types/doctor.types';
 
 export interface IDoctorRepository {
     getAllDoctors(): Promise<RepositoryDoctorsResponse>;
     getDoctorByEmail(email: string): Promise<RepositorySingleDoctorResponsee>;
-    searchDoctors(params: SearchParamss): Promise<SearchDoctorResponse>;
+    searchDoctors(params: Searchparams): Promise<SearchDoctorResponse>;
+    applyForDoctor(
+        doctorData: DoctorFormData
+    ): Promise<DoctorApplicationResponse>;
+    updateDoctorStatusAfterAdminApproval(
+        email: string
+    ): Promise<StatusUpdateResponse>;
+    blockDoctor(email: string): Promise<boolean>;
+    deleteDoctorAfterAdminReject(email: string): Promise<UserResponse>;
 }

@@ -5,10 +5,9 @@ import DoctorPaymentRepository from '@/repositories/implementations/payment.repo
 import DoctorRepository from '@/repositories/implementations/doctor.repository';
 import { IDoctorRepository } from '@/repositories/interfaces/IDoctors.repository';
 import { IUserRepository } from '@/repositories/interfaces/IUsers.repository';
-import { IDoctorPaymentRepository } from '@/repositories/interfaces/IPayment.repository';
 import DoctorAndUserPaymentService from '@/services/implementations/payment.service';
 import ApplyDoctorService from '@/services/implementations/doctor.service';
-import { IDoctorPaymentService } from '@/services/interfaces/IPayment.service';
+import {  IPaymentService } from '@/services/interfaces/IPayment.service';
 import { IDoctorService } from '@/services/interfaces/IDoctor.service';
 import { TYPES } from '@/types/inversify';
 import { Container } from 'inversify';
@@ -25,6 +24,7 @@ import { IAuthRepository } from '@/repositories/interfaces/IAuth.repository';
 import { AuthRepository } from '@/repositories/implementations/auth.repository';
 import { IAccessRepository } from '@/repositories/interfaces/IAccess.repository';
 import AccessRepository from '@/repositories/implementations/access.repository';
+import { IPaymentRepository } from '@/repositories/interfaces/IPayment.repository';
 
 const container = new Container();
 
@@ -41,10 +41,10 @@ container.bind<IAuthService>(TYPES.AuthService).to(AuthService);
 container.bind<IAuthRepository>(TYPES.AuthRepository).to(AuthRepository);
 
 container
-    .bind<IDoctorPaymentRepository>(TYPES.DoctorPaymentRepository)
+    .bind<IPaymentRepository>(TYPES.DoctorPaymentRepository)
     .to(DoctorPaymentRepository);
 container
-    .bind<IDoctorPaymentService>(TYPES.DoctorPaymentService)
+    .bind<IPaymentService>(TYPES.DoctorPaymentService)
     .to(DoctorAndUserPaymentService);
 container.bind(TYPES.DoctorPaymentController).to(DoctorPaymentController);
 

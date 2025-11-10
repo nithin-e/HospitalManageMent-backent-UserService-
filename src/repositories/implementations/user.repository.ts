@@ -1,6 +1,5 @@
-import bcrypt from '../../utility/bcrypt';
 import { User } from '../../entities/user_schema';
-import { registration, UserResponse } from '../../entities/user_interface';
+import { SearchParams } from '../../entities/user_interface';
 import type { User as UserType } from '../../entities/user_schema';
 import { BaseRepository } from './base.repository';
 import { injectable } from 'inversify';
@@ -8,7 +7,8 @@ import {
     IUserRepository,
     SearchUserResponse,
 } from '../interfaces/IUsers.repository';
-import { RepositoryUsersResponse, SearchParams } from '@/types';
+import { RepositoryUsersResponse } from '@/types';
+import { MESSAGES } from '@/constants/messages.constant';
 
 @injectable()
 export class UserRepository
@@ -25,8 +25,8 @@ export class UserRepository
                 data: users,
             };
         } catch (error) {
-            console.error('Error fetching all users:', error);
-            throw new Error('Failed to fetch users');
+            console.error(MESSAGES.USER.FETCH_FAILED, error);
+            throw new Error(MESSAGES.USER.FETCH_FAILED);
         }
     }
 
@@ -34,20 +34,26 @@ export class UserRepository
         try {
             const user = await this.findOne({ email });
 
-            if (!user) {
-                throw new Error('User not found');
-            }
+            if (!user) throw new Error(MESSAGES.USER.NOT_FOUND);
+
             return user;
         } catch (error) {
-            console.error('Error fetching user:', error);
+            console.error(MESSAGES.USER.FETCH_FAILED, error);
             throw error;
         }
     };
 
     async searchUsers(params: SearchParams): Promise<SearchUserResponse> {
         try {
-            const { searchQuery, sortBy, sortDirection, role, page, limit } =
-                params;
+            const {
+                searchQuery,
+                sortBy,
+                sortDirection,
+                role,
+                page,
+                limit,
+                status,
+            } = params;
             const query: Record<string, unknown> = {};
 
             if (searchQuery && searchQuery.trim()) {
@@ -59,6 +65,10 @@ export class UserRepository
 
             if (role && role.trim()) {
                 query.role = role;
+            }
+
+            if (status && status.trim() && status !== 'all') {
+                query.isActive = status === 'active';
             }
 
             const skip = (page - 1) * limit;
@@ -98,10 +108,11 @@ export class UserRepository
                 totalCount,
                 activeCount,
                 blockedCount,
+                totalPages: Math.ceil(totalCount / limit),
             };
         } catch (error) {
-            console.error('Error in debounced search repository:', error);
-            throw error;
+            console.error(MESSAGES.USER.SEARCH_FAILED, error);
+            throw new Error(MESSAGES.USER.SEARCH_FAILED);
         }
     }
 
@@ -109,13 +120,11 @@ export class UserRepository
         try {
             const user = await User.findById(patientId).select('-password');
 
-            if (!user) {
-                throw new Error(`User not found with ID: ${patientId}`);
-            }
+            if (!user) throw new Error(MESSAGES.USER.NOT_FOUND);
 
             return user;
         } catch (error) {
-            console.error('Error fetching user from database:', error);
+            console.error(MESSAGES.USER.FETCH_FAILED, error);
             throw error;
         }
     };

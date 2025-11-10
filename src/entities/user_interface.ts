@@ -158,15 +158,14 @@ export interface WebhookResponse {
     success: boolean;
     message: string;
 }
-
 export interface SearchParams {
     searchQuery: string;
     sortBy: string;
-    sortDirection: string;
+    sortDirection: 'asc' | 'desc';  
     role: string;
     page: number;
     limit: number;
-    status?: '';
+    status: string;  // ✅ Added status
 }
 
 export interface StatusUpdateResponse {

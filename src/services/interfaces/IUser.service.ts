@@ -12,7 +12,8 @@ export interface IUserService {
         sortDirection?: 'asc' | 'desc',
         role?: string,
         page?: number,
-        limit?: number
+        limit?: number,
+        status?: string
     ): Promise<SearchUserResponse>;
 
     getUserDetailsViaSocket(patientId: string): Promise<UserDTO>;

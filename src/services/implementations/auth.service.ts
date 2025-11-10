@@ -3,24 +3,32 @@ import bcrypt from '../../utility/bcrypt';
 import { userData, UserResponse } from '../../entities/user_interface';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '@/types/inversify';
-import { DecodedToken, LoginResponse } from '@/types';
+import {
+    DecodedToken,
+    LoginResponse,
+    LoginUserResponse,
+    SignupResponse,
+} from '@/types';
 import { IAuthService } from '../interfaces/IAuthk.service';
 import { IAuthRepository } from '@/repositories/interfaces/IAuth.repository';
+import { LoginUserMapper } from '@/dto/loginUser.mapper';
+import { SignupUserMapper } from '@/dto/SignupUserMapper';
+import { MESSAGES } from '@/constants/messages.constant';
 
 @injectable()
 export class AuthService implements IAuthService {
     private _JWT_REFRESH_SECRET: string;
+    private JWT_ACCESS_SECRET: string;
 
     constructor(
         @inject(TYPES.AuthRepository)
         private _authRepository: IAuthRepository
     ) {
         if (!process.env.JWT_REFRESH_SECRET) {
-            throw new Error(
-                'JWT_REFRESH_SECRET is not defined in environment variables'
-            );
+            throw new Error(MESSAGES.ERROR.CHECK_ENV);
         }
         this._JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
+        this.JWT_ACCESS_SECRET = process.env.JWT_ACCESS_SECRET!;
     }
 
     userLogin = async (loginData: {
@@ -28,17 +36,17 @@ export class AuthService implements IAuthService {
         password: string;
         name?: string;
         googleId: string;
-    }): Promise<LoginResponse> => {
+    }): Promise<LoginUserResponse> => {
         try {
             const response =
                 await this._authRepository.checkUserExists(loginData);
-            if (!response) {
-                throw new Error('No user data returned from repository');
-            }
 
-            if (response.error === 'Invalid credentials') {
-                console.log('usecase if condition', response);
-                return { success: false, message: response.error };
+            if (!response) throw new Error(MESSAGES.USER.NOT_FOUND);
+
+            if (response.error === MESSAGES.AUTH.INVALID_CREDENTIALS) {
+                return LoginUserMapper.toErrorResponse(
+                    MESSAGES.AUTH.INVALID_CREDENTIALS
+                );
             }
 
             const accessToken = jwt.sign(
@@ -47,8 +55,8 @@ export class AuthService implements IAuthService {
                     email: response.email,
                     role: response.role,
                 },
-                this._JWT_REFRESH_SECRET,
-                { expiresIn: '1m' }
+                this.JWT_ACCESS_SECRET,
+                { expiresIn: '30m' }
             );
 
             const refreshToken = jwt.sign(
@@ -61,11 +69,13 @@ export class AuthService implements IAuthService {
                 { expiresIn: '7d' }
             );
 
-            console.log('response from use case', response);
-
-            return { user: response, accessToken, refreshToken, success: true };
+            return LoginUserMapper.toLoginResponse(
+                response,
+                accessToken,
+                refreshToken
+            );
         } catch (error) {
-            console.error('Error in login use case:', error);
+            console.error(MESSAGES.ERROR.LOGIN_FAILED, error);
             throw error;
         }
     };
@@ -86,7 +96,7 @@ export class AuthService implements IAuthService {
 
             return response;
         } catch (error) {
-            console.error('Error in forget password use case:', error);
+            console.error(MESSAGES.ERROR.FORGOT_PASSWORD_FAILED, error);
             throw error;
         }
     };
@@ -108,7 +118,7 @@ export class AuthService implements IAuthService {
             console.log('Response from repository:', response);
             return response;
         } catch (error) {
-            console.error('Error in change password service:', error);
+            console.error(MESSAGES.ERROR.CHANGE_PASSWORD_FAILED, error);
             throw error;
         }
     };
@@ -125,19 +135,14 @@ export class AuthService implements IAuthService {
                 phoneNumber: loginData.phoneNumber,
             });
 
-            console.log('Response from repository:', response);
             return response;
         } catch (error) {
-            console.error('Error in change user information service:', error);
+            console.error(MESSAGES.ERROR.UPDATE_INFO_FAILED, error);
             throw error;
         }
     };
 
-    userRegistration = async (
-        userData: userData
-    ): Promise<{
-        user: UserResponse;
-    }> => {
+    userRegistration = async (userData: userData): Promise<SignupResponse> => {
         try {
             const { name, email, password, phoneNumber, google_id } = userData;
 
@@ -150,12 +155,13 @@ export class AuthService implements IAuthService {
                 google_id,
             };
 
-            const response = await this._authRepository.saveUser(newUserData);
-            return {
-                user: response,
-            };
+            const savedUser = await this._authRepository.saveUser(newUserData);
+            return SignupUserMapper.toSignupResponse(
+                savedUser,
+                MESSAGES.USER.REGISTER_SUCCESS
+            );
         } catch (error) {
-            console.log(error);
+            console.error(MESSAGES.ERROR.REGISTER_FAILED, error);
             throw error;
         }
     };
@@ -210,17 +216,14 @@ export class AuthService implements IAuthService {
             );
 
             return {
-                success: true as const,
-                message: 'Token refreshed successfully',
+                success: true,
+                message: MESSAGES.AUTH.TOKEN_REFRESH_SUCCESS,
                 accessToken,
                 refreshToken: newRefreshToken,
             };
         } catch (error) {
-            console.error('❌ Refresh token error:', error);
-            return {
-                success: false as const,
-                message: 'Invalid or expired refresh token',
-            };
+            console.error(MESSAGES.ERROR.TOKEN_REFRESH_FAILED, error);
+            return { success: false, message: MESSAGES.AUTH.TOKEN_INVALID };
         }
     };
 }

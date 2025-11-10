@@ -3,16 +3,14 @@ import { TYPES } from '@/types/inversify';
 import { Request, Response } from 'express';
 import { sendUnaryData } from '@grpc/grpc-js';
 import { IDoctorService } from '@/services/interfaces/IDoctor.service';
-import { ApplyDoctorMapper } from '@/dto/DoctorApplicationMapper';
 import {
-    Doctor,
     UpdateDoctorStatusAfterAdminApproveResponse,
     UpdateStatusCall,
     ApplyDoctorRequest,
     HttpStatusCode,
 } from '@/types';
 import uploadToS3 from '@/config/s3';
-import { DoctorsMapper, SingleDoctorMapper } from '@/dto/DoctorsMapper';
+import { MESSAGES } from '@/constants/messages.constant';
 
 @injectable()
 export class DoctorController {
@@ -69,22 +67,20 @@ export class DoctorController {
                 ),
             };
 
-            const response =
-                await this._doctorService.applyForDoctor(doctorData);
-
-            const result = new ApplyDoctorMapper(
-                response,
-                req.body
-            ).toGrpcResponse();
-
-         
+            const result = await this._doctorService.applyForDoctor(
+                doctorData,
+                body
+            );
 
             res.status(HttpStatusCode.OK).json({ data: result });
         } catch (error) {
-            console.error('REST applyForDoctor error:', error);
-            res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({ message: (error as Error).message });
+            console.error('error:', error);
+            res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+                message: (error as Error).message,
+            });
         }
     }
+
     async UpdateDoctorStatusAfterAdminApprove(
         call: UpdateStatusCall,
         callback: sendUnaryData<UpdateDoctorStatusAfterAdminApproveResponse>
@@ -99,7 +95,6 @@ export class DoctorController {
 
             callback(null, result);
         } catch (error) {
-          
             callback(
                 {
                     code: 13,
@@ -113,19 +108,12 @@ export class DoctorController {
     getAllDoctors = async (req: Request, res: Response): Promise<void> => {
         try {
             const doctorsResponse = await this._doctorService.getAllDoctors();
-            const doctors: Doctor[] = doctorsResponse.data;
 
-            const response = new DoctorsMapper(doctors).toGrpcResponse();
-
-            res.status(HttpStatusCode.OK).json({ data: response });
+            res.status(HttpStatusCode.OK).json({ data: doctorsResponse.data });
         } catch (error) {
-            console.error('REST getAllDoctors error:', error);
-
+            console.error('error:', error);
             res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-                message:
-                    error instanceof Error
-                        ? error.message
-                        : 'Internal server error',
+                message: MESSAGES.ERROR.INTERNAL_SERVER_ERROR,
             });
         }
     };
@@ -140,14 +128,10 @@ export class DoctorController {
             if (!doctorResponse.doctor) {
                 throw new Error('Doctor not found');
             }
-            const response = new SingleDoctorMapper(
-                doctorResponse.doctor
-            ).toGrpcResponse();
 
-           
-            res.status(HttpStatusCode.OK).json({ data: response });
+            res.status(HttpStatusCode.OK).json({ data: doctorResponse.doctor });
         } catch (error) {
-            console.error('REST getDoctorByEmail error:', error);
+            console.error('error:', error);
             res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
                 message:
                     error instanceof Error
@@ -166,12 +150,9 @@ export class DoctorController {
 
             res.status(HttpStatusCode.OK).json({ success });
         } catch (error) {
-            console.error('REST blockDoctor error:', error);
+            console.error('error:', error);
             res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-                message:
-                    error instanceof Error
-                        ? error.message
-                        : 'Internal server error',
+                message: MESSAGES.DOCTOR.BLOCK_FAILED,
             });
         }
     };
@@ -180,12 +161,14 @@ export class DoctorController {
         try {
             const {
                 searchQuery = '',
+                status = '',
                 sortBy = 'createdAt',
                 sortDirection = 'desc',
                 page = 1,
                 limit = 50,
             } = req.query as unknown as {
                 searchQuery?: string;
+                status?: string;
                 sortBy?: string;
                 sortDirection?: 'asc' | 'desc';
                 page?: number;
@@ -197,17 +180,42 @@ export class DoctorController {
                 sortBy,
                 sortDirection,
                 Number(page),
-                Number(limit)
+                Number(limit),
+                status
             );
 
             res.status(HttpStatusCode.OK).json({ data: response });
         } catch (error) {
-            console.error('REST searchDoctors error:', error);
+            console.error('error:', error);
             res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
                 message:
-                    error instanceof Error
-                        ? error.message
-                        : 'Internal server error',
+                    (error as Error).message || MESSAGES.DOCTOR.SEARCH_FAILED,
+            });
+        }
+    };
+
+    deleteDoctorAfterAdminReject = async (
+        req: Request,
+        res: Response
+    ): Promise<void> => {
+        try {
+            const { email } = req.body;
+
+            const response =
+                await this._doctorService.deleteDoctorAfterRejection(email);
+
+            res.status(HttpStatusCode.OK).json({
+                success: true,
+                message:
+                    MESSAGES.PAYMENT.DELETE_SUCCESS ||
+                    'Doctor deleted successfully',
+                data: response,
+            });
+        } catch (error) {
+            res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+                success: false,
+                message:
+                    (error as Error).message || MESSAGES.PAYMENT.DELETE_FAILED,
             });
         }
     };

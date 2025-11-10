@@ -1,23 +1,26 @@
 import { mapDoctorToDTO } from '../../dto/doctor.mapper';
-import { IDoctorRepository } from '../../repositories/interfaces/IDoctors.repository';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '@/types/inversify';
 import { IDoctorService } from '../interfaces/IDoctor.service';
-import { DoctorFormData } from '@/entities/user_interface';
-import { IApplyDoctorRepository } from '@/repositories/interfaces/IDoctor.repository';
+import { DoctorFormData, UserResponse } from '@/entities/user_interface';
 import {
+    ApplyDoctorRequest,
+    ApplyDoctorResponse,
     DoctorApplicationResponse,
     RepositoryDoctorsResponse,
     RepositorySingleDoctorResponsee,
     SearchDoctorResponse,
     StatusUpdateResponse,
 } from '@/types';
+import { IDoctorRepository } from '@/repositories/interfaces/IDoctors.repository';
+import { ApplyDoctorMapper } from '@/dto/doctorApplication.mapper';
+import { MESSAGES } from '@/constants/messages.constant';
 
 @injectable()
 export default class DoctorService implements IDoctorService {
     constructor(
         @inject(TYPES.DoctorRepository)
-        private readonly _doctorRepo: IDoctorRepository & IApplyDoctorRepository
+        private readonly _doctorRepo: IDoctorRepository
     ) {}
 
     getAllDoctors = async (): Promise<RepositoryDoctorsResponse> => {
@@ -29,8 +32,8 @@ export default class DoctorService implements IDoctorService {
                 data: doctorDtos,
             };
         } catch (error) {
-            console.error('Error in login use case:', error);
-            throw error;
+            console.error(MESSAGES.DOCTOR.FETCH_FAILED, error);
+            throw new Error(MESSAGES.DOCTOR.FETCH_FAILED);
         }
     };
 
@@ -54,11 +57,10 @@ export default class DoctorService implements IDoctorService {
             };
 
             const response = await this._doctorRepo.searchDoctors(params);
-            console.log('check this responce in service layer', response);
             return response;
         } catch (error) {
-            console.error('Error in search doctors service:', error);
-            throw error;
+            console.error(MESSAGES.DOCTOR.SEARCH_FAILED, error);
+            throw new Error(MESSAGES.DOCTOR.SEARCH_FAILED);
         }
     };
 
@@ -67,10 +69,6 @@ export default class DoctorService implements IDoctorService {
     ): Promise<RepositorySingleDoctorResponsee> => {
         try {
             const response = await this._doctorRepo.getDoctorByEmail(email);
-            console.log(
-                'check this responce while fecting onedoctor',
-                response
-            );
 
             const doctorDtos = response.doctor
                 ? mapDoctorToDTO(response.doctor)
@@ -80,17 +78,16 @@ export default class DoctorService implements IDoctorService {
                 doctor: doctorDtos,
             };
         } catch (error) {
-            console.error('Error in doctor fetch use case:', error);
-            throw error;
+            console.error(MESSAGES.DOCTOR.SINGLE_FETCH_FAILED, error);
+            throw new Error(MESSAGES.DOCTOR.SINGLE_FETCH_FAILED);
         }
     };
 
     applyForDoctor = async (
-        doctorData: DoctorFormData
-    ): Promise<DoctorApplicationResponse> => {
+        doctorData: DoctorFormData,
+        requestData: ApplyDoctorRequest
+    ): Promise<ApplyDoctorResponse> => {
         try {
-            console.log('service layar here---', doctorData);
-
             const {
                 userId,
                 firstName,
@@ -145,28 +142,33 @@ export default class DoctorService implements IDoctorService {
             const response =
                 await this._doctorRepo.applyForDoctor(newDoctorData);
 
-            if (response.success && response.doctor) {
-                return {
-                    id: response.doctor.id,
-                    firstName: response.doctor.firstName,
-                    lastName: response.doctor.lastName,
-                    email: response.doctor.email,
-                    status: response.doctor.status,
-                    message: response.message,
-                };
-            } else {
-                return {
-                    id: '',
-                    firstName: '',
-                    lastName: '',
-                    email: '',
-                    status: 'failed',
-                    message: response.message,
-                };
-            }
+            const doctorResponse: DoctorApplicationResponse =
+                response.success && response.doctor
+                    ? {
+                          id: response.doctor.id,
+                          firstName: response.doctor.firstName,
+                          lastName: response.doctor.lastName,
+                          email: response.doctor.email,
+                          status: response.doctor.status,
+                          message: response.message,
+                      }
+                    : {
+                          id: '',
+                          firstName: '',
+                          lastName: '',
+                          email: '',
+                          status: 'failed',
+                          message: response.message,
+                      };
+
+            const mapper = new ApplyDoctorMapper(doctorResponse, requestData);
+            return mapper.toGrpcResponse();
         } catch (error) {
-            console.log('Error in use case:', error);
-            throw error;
+            console.error(MESSAGES.DOCTOR.APPLY_FAILED, error);
+            return {
+                success: false,
+                message: MESSAGES.DOCTOR.APPLY_FAILED,
+            } as ApplyDoctorResponse;
         }
     };
 
@@ -180,8 +182,8 @@ export default class DoctorService implements IDoctorService {
                 );
             return response;
         } catch (error) {
-            console.log('Error in use case:', error);
-            throw error;
+            console.error(MESSAGES.DOCTOR.STATUS_UPDATE_FAILED, error);
+            throw new Error(MESSAGES.DOCTOR.STATUS_UPDATE_FAILED);
         }
     };
 
@@ -190,8 +192,24 @@ export default class DoctorService implements IDoctorService {
             const response = await this._doctorRepo.blockDoctor(email);
             return response;
         } catch (error) {
-            console.error('Error in login use case:', error);
-            throw error;
+            console.error(MESSAGES.DOCTOR.BLOCK_FAILED, error);
+            throw new Error(MESSAGES.DOCTOR.BLOCK_FAILED);
+        }
+    };
+
+
+     deleteDoctorAfterRejection = async (
+        email: string
+    ): Promise<UserResponse> => {
+        try {
+            const response =
+                await this._doctorRepo.deleteDoctorAfterAdminReject(
+                    email
+                );
+            return response;
+        } catch (error) {
+            console.error(MESSAGES.PAYMENT.DELETE_FAILED, error);
+            throw new Error(MESSAGES.PAYMENT.DELETE_FAILED);
         }
     };
 }

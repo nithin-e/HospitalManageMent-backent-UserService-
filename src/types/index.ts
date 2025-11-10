@@ -16,6 +16,7 @@ export interface SearchUserResponse {
     blockedCount: number;
     success?: boolean;
     message?: string;
+    totalPages?: number;
 }
 
 // export interface ApplyDoctorRequest {
@@ -171,33 +172,33 @@ export interface RepositorySingleDoctorResponsee {
 }
 
 export interface PaymentEvent {
-  type: string; 
-  data: PaymentEventData;
+    type: string;
+    data: PaymentEventData;
 }
 
 export interface PaymentEventData {
-  id: string;
-  amount_total: number;
-  currency: string;
-  customer_email?: string;
-  metadata?: {
-    type?: string;
-    patientEmail?: string;
-    appointmentDate?: string;
-    appointmentTime?: string;
-    notes?: string;
-    doctorName?: string;
-    specialty?: string;
-    userEmail?: string;
-    patientId?: string;
-    doctorId?: string;
-  };
-  customer_details?: {
-    name?: string;
-    email?: string;
-    phone?: string;
-  };
-  [key: string]: any;
+    id: string;
+    amount_total: number;
+    currency: string;
+    customer_email?: string;
+    metadata?: {
+        type?: string;
+        patientEmail?: string;
+        appointmentDate?: string;
+        appointmentTime?: string;
+        notes?: string;
+        doctorName?: string;
+        specialty?: string;
+        userEmail?: string;
+        patientId?: string;
+        doctorId?: string;
+    };
+    customer_details?: {
+        name?: string;
+        email?: string;
+        phone?: string;
+    };
+    [key: string]: any;
 }
 
 // }
@@ -368,14 +369,14 @@ export interface UserServiceResponse {
     message?: string;
 }
 
-export interface SearchParams {
-    searchQuery: string;
-    sortBy: string;
-    sortDirection: 'asc' | 'desc';
-    role: 'user' | 'doctor' | 'admin'; // Changed from union type to string for more flexibility
-    page: number;
-    limit: number;
-}
+// export interface SearchParams {
+//     searchQuery: string;
+//     sortBy: string;
+//     sortDirection: 'asc' | 'desc';
+//     role: 'user' | 'doctor' | 'admin'; // Changed from union type to string for more flexibility
+//     page: number;
+//     limit: number;
+// }
 
 // Doctor Application Types
 export interface ApplyDoctorRequest {
@@ -502,14 +503,14 @@ export interface UserServiceResponse {
     message?: string;
 }
 
-export interface SearchParams {
-    searchQuery: string;
-    sortBy: string;
-    sortDirection: 'asc' | 'desc';
-    role: 'admin' | 'user' | 'doctor';
-    page: number;
-    limit: number;
-}
+// export interface SearchParams {
+//     searchQuery: string;
+//     sortBy: string;
+//     sortDirection: 'asc' | 'desc';
+//     role: 'admin' | 'user' | 'doctor';
+//     page: number;
+//     limit: number;
+// }
 
 // ===== DOCTOR APPLICATION TYPES =====
 export interface ApplyDoctorRequest {
@@ -655,6 +656,7 @@ export interface UserData {
     google_id?: string;
     role: string;
     isActive: boolean;
+    __v?: number;
 }
 
 // Service response type (what your service layer returns)
@@ -707,6 +709,18 @@ export interface LoginUserResponse {
     refresh_token?: string;
     message?: string;
 }
+
+export type LoginResponse =
+    | {
+          user: UserResponse;
+          accessToken: string;
+          refreshToken: string;
+          success: true;
+      }
+    | {
+          message: string;
+          success: false;
+      };
 
 export interface LoginUserRequest {
     email: string;
@@ -789,19 +803,6 @@ export interface forgetData {
     phoneNumber: string;
 }
 
-export type LoginResponse =
-    | {
-          user: UserResponse;
-          accessToken: string;
-          refreshToken: string;
-          success?: boolean;
-      }
-    | {
-          message: string;
-          success?: boolean;
-          error?: string;
-      };
-
 export interface DoctorDTO {
     id: string;
     firstName: string;
@@ -830,7 +831,7 @@ export interface SearchDoctorResponse {
     message?: string;
 }
 
-export interface SearchParamss {
+export interface Searchparams {
     searchQuery: string;
     sortBy: string;
     sortDirection: 'asc' | 'desc';
@@ -851,9 +852,8 @@ export type UpdateStatusCall = grpc.ServerUnaryCall<
 
 export type GRPCCallback<T> = grpc.sendUnaryData<T>;
 
-
 export interface SignupUserEntity {
-    _id?: string | { toString(): string }; 
+    _id?: string | { toString(): string };
     name?: string;
     email?: string;
     password?: string;
@@ -863,7 +863,6 @@ export interface SignupUserEntity {
     googleId?: string;
     role?: string;
 
-   
     _doc?: {
         _id?: string | { toString(): string };
         name?: string;
@@ -877,7 +876,6 @@ export interface SignupUserEntity {
     };
 }
 
-
 export enum HttpStatusCode {
     OK = 200,
     CREATED = 201,
@@ -889,6 +887,22 @@ export enum HttpStatusCode {
     INTERNAL_SERVER_ERROR = 500,
 }
 export interface DecodedToken {
-  userId: string;
-  role: string;
+    userId: string;
+    role: string;
+}
+
+export interface SignupUserData {
+    id: string;
+    name: string;
+    email: string;
+    phone_number: string;
+    created_at: string;
+    version: number;
+    google_id?: string;
+    role: string;
+}
+
+export interface SignupResponse {
+    user: SignupUserData;
+    message?: string;
 }

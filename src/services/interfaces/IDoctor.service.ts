@@ -1,4 +1,7 @@
+import { UserResponse } from '@/entities/user_interface';
 import {
+    ApplyDoctorRequest,
+    ApplyDoctorResponse,
     DoctorApplicationResponse,
     DoctorFormData,
     RepositoryDoctorsResponse,
@@ -18,8 +21,9 @@ export interface IDoctorService {
     ): Promise<SearchDoctorResponse>;
 
     applyForDoctor(
-        doctorData: DoctorFormData
-    ): Promise<DoctorApplicationResponse>;
+        doctorData: DoctorFormData,
+        requestData: ApplyDoctorRequest
+    ): Promise<ApplyDoctorResponse>;
     updateDoctorStatusAfterAdminApproval(
         email: string
     ): Promise<StatusUpdateResponse>;
@@ -28,4 +32,6 @@ export interface IDoctorService {
 
     getAllDoctors(): Promise<RepositoryDoctorsResponse>;
     getDoctorByEmail(email: string): Promise<RepositorySingleDoctorResponsee>;
+    deleteDoctorAfterRejection(email: string): Promise<UserResponse>;
+    
 }

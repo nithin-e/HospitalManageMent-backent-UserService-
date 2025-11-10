@@ -1,17 +1,14 @@
 import {
     checkResponse,
-    LoginResponse,
-    signupResponse,
     userData,
     UserResponse,
 } from '../entities/user_interface';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '@/types/inversify';
-import { LoginUserMapper } from '@/dto/LoginUserMapper';
-import { SignupUserMapper } from '@/dto/SignupUserMapper';
 import { forgetData, HttpStatusCode, LoginUserRequest } from '@/types';
 import { IAuthService } from '@/services/interfaces/IAuthk.service';
 import { Response, Request } from 'express';
+import { MESSAGES } from '@/constants/messages.constant';
 
 @injectable()
 export class AuthController {
@@ -31,19 +28,14 @@ export class AuthController {
                 googleId,
                 name,
             };
-            const response = (await this._authService.userLogin(
-                loginData
-            )) as LoginResponse;
 
-            const mappedResponse = new LoginUserMapper(
-                response
-            ).toGrpcResponse();
+            const mappedResponse = await this._authService.userLogin(loginData);
 
             res.status(HttpStatusCode.OK).json(mappedResponse);
         } catch (error) {
-            console.error('REST login error:', error);
-            res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-                message: (error as Error).message,
+            res.status(HttpStatusCode.BAD_REQUEST).json({
+                success: false,
+                message: MESSAGES.ERROR.LOGIN_FAILED,
             });
         }
     };
@@ -59,7 +51,7 @@ export class AuthController {
             const response = await this._authService.forgotPassword(loginData);
             res.status(HttpStatusCode.OK).json(response);
         } catch (error) {
-            console.error('REST forgot password error:', error);
+            console.error('error:', error);
             res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
                 message: (error as Error).message,
             });
@@ -78,7 +70,7 @@ export class AuthController {
 
             res.status(HttpStatusCode.OK).json(response);
         } catch (error) {
-            console.error('REST changeUserPassword error:', error);
+            console.error('error:', error);
             res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
                 message: (error as Error).message,
             });
@@ -98,7 +90,7 @@ export class AuthController {
             const userResponse: UserResponse = { success: response.success };
             res.status(HttpStatusCode.OK).json(userResponse);
         } catch (error) {
-            console.error('REST updateUserInformation error:', error);
+            console.error('error:', error);
             res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
                 message: (error as Error).message,
             });
@@ -109,23 +101,20 @@ export class AuthController {
         try {
             const { name, email, password, phoneNumber, google_id }: userData =
                 req.body;
-            const userData = { name, email, password, phoneNumber, google_id };
 
-            const response = await this._authService.userRegistration(userData);
+            const response = await this._authService.userRegistration({
+                name,
+                email,
+                password,
+                phoneNumber,
+                google_id,
+            });
 
-            const userMessage = new SignupUserMapper(
-                response.user
-            ).toUserMessage();
-
-            const registerResponse: signupResponse = {
-                user: userMessage,
-            };
-
-            res.status(HttpStatusCode.OK).json(registerResponse);
+            res.status(HttpStatusCode.OK).json(response);
         } catch (error) {
-            console.error('REST signup error:', error);
-            res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-                message: (error as Error).message,
+            res.status(HttpStatusCode.BAD_REQUEST).json({
+                success: false,
+                message: MESSAGES.ERROR.REGISTER_FAILED,
             });
         }
     };
@@ -141,19 +130,20 @@ export class AuthController {
 
             res.status(HttpStatusCode.OK).json(response);
         } catch (error) {
-            console.error('REST checkUser error:', error);
+            console.error('error:', error);
             res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
                 message: (error as Error).message,
             });
         }
     };
-    handleRefreshToken = async (req: Request, res: Response) => {
+
+    handleRefreshToken = async (req: Request, res: Response): Promise<void> => {
         const { token: refreshToken } = req.body;
 
         if (!refreshToken) {
             res.status(HttpStatusCode.UNAUTHORIZED).json({
                 success: false,
-                message: 'No refresh token provided',
+                message: MESSAGES.AUTH.NO_REFRESH_TOKEN,
             });
             return;
         }
@@ -163,7 +153,7 @@ export class AuthController {
         if (!response.success) {
             res.status(HttpStatusCode.UNAUTHORIZED).json({
                 success: false,
-                message: response.message,
+                message: response.message || MESSAGES.AUTH.TOKEN_INVALID,
             });
             return;
         }

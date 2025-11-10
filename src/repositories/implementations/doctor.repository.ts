@@ -1,28 +1,32 @@
 import {
     DoctorFormData,
     StatusUpdateResponse,
+    UserResponse,
 } from 'src/entities/user_interface';
 import { DoctorDb } from '../../entities/doctor_schema';
 import { User } from '../../entities/user_schema';
-import { IApplyDoctorRepository } from '../interfaces/IDoctor.repository';
 import { injectable } from 'inversify';
-import { IDoctorRepository } from '../interfaces/IDoctors.repository';
 import {
-    SearchParamss,
+    Searchparams,
     SearchDoctorResponse,
     DoctorApplicationResult,
     RepositoryDoctorsResponse,
     RepositorySingleDoctorResponsee,
 } from '@/types';
+import { IDoctorRepository } from '../interfaces/IDoctors.repository';
+import { MESSAGES } from '@/constants/messages.constant';
 
 @injectable()
-export default class DoctorRepository
-    implements IDoctorRepository, IApplyDoctorRepository
-{
-    async searchDoctors(params: SearchParamss): Promise<SearchDoctorResponse> {
+export default class DoctorRepository implements IDoctorRepository {
+    async searchDoctors(params: Searchparams): Promise<SearchDoctorResponse> {
         try {
-            const { searchQuery, sortBy, sortDirection, page, limit } = params;
+            const { searchQuery, sortBy, sortDirection, page, limit, role } =
+                params;
             const query: Record<string, unknown> = {};
+
+            if (role && role.trim()) {
+                query.status = role;
+            }
 
             if (searchQuery && searchQuery.trim()) {
                 query.$or = [
@@ -92,8 +96,8 @@ export default class DoctorRepository
                 success: true,
             };
         } catch (error) {
-            console.error('Error in search doctors repository:', error);
-            throw error;
+            console.error(MESSAGES.DOCTOR.SEARCH_FAILED, error);
+            throw new Error(MESSAGES.DOCTOR.SEARCH_FAILED);
         }
     }
 
@@ -104,8 +108,7 @@ export default class DoctorRepository
             if (!doctorData.email || doctorData.email === '') {
                 return {
                     success: false,
-                    message:
-                        'Please use your logged-in email address for the application.',
+                    message: MESSAGES.DOCTOR.APPLY_INVALID_EMAIL,
                 };
             }
 
@@ -117,16 +120,14 @@ export default class DoctorRepository
             if (existingDoctor) {
                 return {
                     success: false,
-                    message:
-                        'You have already applied. Please wait for a response.',
+                    message: MESSAGES.DOCTOR.APPLY_ALREADY,
                 };
             }
 
             if (!currentUser || currentUser.email !== doctorData.email) {
                 return {
                     success: false,
-                    message:
-                        'Please use your logged-in email address for the application.',
+                    message: MESSAGES.DOCTOR.APPLY_INVALID_EMAIL,
                 };
             }
 
@@ -165,12 +166,10 @@ export default class DoctorRepository
                 },
             };
         } catch (error) {
-            console.error('Error saving doctor:', error);
-
+            console.error(MESSAGES.DOCTOR.APPLY_FAILED, error);
             return {
                 success: false,
-                message:
-                    'An error occurred while processing your application. Please try again later.',
+                message: MESSAGES.DOCTOR.APPLY_FAILED,
             };
         }
     };
@@ -195,11 +194,10 @@ export default class DoctorRepository
                 success: true,
             };
         } catch (error) {
-            console.error('Error updating doctor status:', error);
-
+            console.error(MESSAGES.DOCTOR.STATUS_UPDATE_FAILED, error);
             return {
                 success: false,
-                message: 'Failed to update doctor status',
+                message: MESSAGES.DOCTOR.STATUS_UPDATE_FAILED,
                 error: (error as Error).message,
             };
         }
@@ -211,11 +209,11 @@ export default class DoctorRepository
             return {
                 success: true,
                 data: doctors,
-                message: 'Doctors fetched successfully',
+                message: MESSAGES.DOCTOR.FETCH_SUCCESS,
             };
         } catch (error) {
-            console.error('Error fetching doctors:', error);
-            throw error;
+            console.error(MESSAGES.DOCTOR.FETCH_FAILED, error);
+            throw new Error(MESSAGES.DOCTOR.FETCH_FAILED);
         }
     }
 
@@ -233,8 +231,8 @@ export default class DoctorRepository
                     : 'Doctor not found',
             };
         } catch (error) {
-            console.error('Error fetching doctor in repository:', error);
-            throw error;
+            console.error(MESSAGES.DOCTOR.SINGLE_FETCH_FAILED, error);
+            throw new Error(MESSAGES.DOCTOR.SINGLE_FETCH_FAILED);
         }
     }
 
@@ -252,8 +250,21 @@ export default class DoctorRepository
 
             return true;
         } catch (error) {
-            console.error('Error blocking doctor in repository:', error);
-            throw error;
+            console.error(MESSAGES.DOCTOR.BLOCK_FAILED, error);
+            throw new Error(MESSAGES.DOCTOR.BLOCK_FAILED);
         }
     }
+
+    deleteDoctorAfterAdminReject = async (
+        email: string
+    ): Promise<UserResponse> => {
+        try {
+            await DoctorDb.findOneAndDelete({ email });
+
+            return { success: true };
+        } catch (error) {
+            console.error(MESSAGES.PAYMENT.DELETE_FAILED, error);
+            throw new Error(MESSAGES.PAYMENT.DELETE_FAILED);
+        }
+    };
 }

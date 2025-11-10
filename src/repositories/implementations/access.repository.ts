@@ -2,6 +2,7 @@ import { injectable } from 'inversify';
 import { IAccessRepository } from '../interfaces/IAccess.repository';
 import { BaseRepository } from './base.repository';
 import { User, type User as UserType } from '../../entities/user_schema';
+import { MESSAGES } from '@/constants/messages.constant';
 
 @injectable()
 export default class AccessRepository
@@ -16,9 +17,7 @@ export default class AccessRepository
         try {
             const user = await this.findById(userId);
 
-            if (!user) {
-                throw new Error('User not found');
-            }
+            if (!user) throw new Error(MESSAGES.USER.NOT_FOUND);
 
             const updatedUser = await User.findByIdAndUpdate(
                 userId,
@@ -28,7 +27,7 @@ export default class AccessRepository
 
             return true;
         } catch (error) {
-            console.error('Error blocking user in repository:', error);
+            console.error(MESSAGES.ERROR.BLOCK_FAILED, error);
             throw error;
         }
     }
@@ -37,9 +36,7 @@ export default class AccessRepository
         try {
             const user = await this.findById(userId);
 
-            if (!user) {
-                throw new Error('User not found');
-            }
+            if (!user) throw new Error(MESSAGES.USER.NOT_FOUND);
 
             const updatedUser = await User.findByIdAndUpdate(
                 userId,
@@ -49,7 +46,7 @@ export default class AccessRepository
 
             return true;
         } catch (error) {
-            console.error('Error unblocking user in repository:', error);
+            console.error(MESSAGES.ERROR.UNBLOCK_FAILED, error);
             throw error;
         }
     }

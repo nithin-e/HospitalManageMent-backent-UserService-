@@ -1,25 +1,28 @@
-import { SignupUserEntity } from "@/types";
-
+import { UserResponse } from '@/entities/user_interface';
+import { SignupUserData, SignupResponse } from '@/types';
 
 export class SignupUserMapper {
-    constructor(private readonly rawUser: SignupUserEntity) {}
+    static toSignupUserData(rawUser: UserResponse): SignupUserData {
+        const user = rawUser._doc || rawUser;
 
-    toUserMessage() {
         return {
-            id: (this.rawUser._id || this.rawUser._doc?._id)?.toString(),
-            name: this.rawUser.name || this.rawUser._doc?.name || '',
-            email: this.rawUser.email || this.rawUser._doc?.email || '',
-            password:
-                this.rawUser.password || this.rawUser._doc?.password || '',
-            phoneNumber:
-                this.rawUser.phoneNumber ||
-                this.rawUser._doc?.phoneNumber ||
-                '',
-            createdAt: this.rawUser.createdAt || this.rawUser._doc?.createdAt,
-            version: this.rawUser.__v || this.rawUser._doc?.__v || 0,
-            googleId:
-                this.rawUser.googleId || this.rawUser._doc?.googleId || '',
-            role: this.rawUser.role || this.rawUser._doc?.role || '',
+            id: user._id?.toString() || '',
+            name: user.name || '',
+            email: user.email || '',
+            phone_number: user.phoneNumber || '',
+            created_at: user.createdAt
+                ? new Date(user.createdAt).toISOString()
+                : new Date().toISOString(),
+            version: user.__v || 0,
+            google_id: user.googleId || '',
+            role: user.role || 'user',
+        };
+    }
+
+    static toSignupResponse(user: UserResponse, message?: string): SignupResponse {
+        return {
+            user: this.toSignupUserData(user),
+            message,
         };
     }
 }
