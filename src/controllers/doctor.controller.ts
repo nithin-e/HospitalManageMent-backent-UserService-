@@ -21,6 +21,7 @@ export class DoctorController {
 
     async applyForDoctor(req: Request, res: Response) {
         try {
+            
             const files =
                 ((req as any).files as {
                     [fieldname: string]: Express.Multer.File[];

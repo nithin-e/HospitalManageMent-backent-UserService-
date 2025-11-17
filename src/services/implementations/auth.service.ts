@@ -5,7 +5,6 @@ import { inject, injectable } from 'inversify';
 import { TYPES } from '@/types/inversify';
 import {
     DecodedToken,
-    LoginResponse,
     LoginUserResponse,
     SignupResponse,
 } from '@/types';

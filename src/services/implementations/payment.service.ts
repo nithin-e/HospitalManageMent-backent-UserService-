@@ -45,18 +45,4 @@ export default class PaymentService implements IPaymentService {
         }
     };
 
-    // deleteDoctorAfterRejection = async (
-    //     email: string
-    // ): Promise<UserResponse> => {
-    //     try {
-    //         const response =
-    //             await this._updateDoctorAndUserAfterPaymentRepo.deleteDoctorAfterAdminReject(
-    //                 email
-    //             );
-    //         return response;
-    //     } catch (error) {
-    //         console.error(MESSAGES.PAYMENT.DELETE_FAILED, error);
-    //         throw new Error(MESSAGES.PAYMENT.DELETE_FAILED);
-    //     }
-    // };
 }

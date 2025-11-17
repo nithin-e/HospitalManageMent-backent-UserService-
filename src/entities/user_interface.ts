@@ -55,7 +55,7 @@ export interface UpdateUserData {
     email: string;
     newPassword?: string;
     phoneNumber: string;
-    name: string; // Add this
+    name: string; 
 }
 
 export interface DoctorFormData {

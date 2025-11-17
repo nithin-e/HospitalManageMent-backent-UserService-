@@ -659,7 +659,6 @@ export interface UserData {
     __v?: number;
 }
 
-// Service response type (what your service layer returns)
 export interface LoginServiceResponse {
     user?: UserData;
     access_token?: string;
@@ -774,26 +773,9 @@ export interface UpdateDoctor {
     email: string;
 }
 
-export interface GrpcRequest {
-    request: {
-        eventData?: string;
-        eventType?: string;
-        type?: string;
-        data?: {
-            object: {
-                metadata?: {
-                    email?: string;
-                    transactionId?: string;
-                };
-                [key: string]: any;
-            };
-        };
-    };
-}
 
-export interface GrpcCallResponse {
-    (error: any, response: any): void;
-}
+
+
 
 export interface forgetData {
     email: string;

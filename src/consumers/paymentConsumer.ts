@@ -1,4 +1,4 @@
-// src/consumers/payment.consumer.ts
+
 
 import { createRabbit } from '@/config/rabbitmq.config';
 import { container } from '../config/inversify.config';

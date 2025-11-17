@@ -58,4 +58,5 @@ userRoute.post(
     doctorController.deleteDoctorAfterAdminReject
 );
 
+// applyDoctor 
 export default userRoute;

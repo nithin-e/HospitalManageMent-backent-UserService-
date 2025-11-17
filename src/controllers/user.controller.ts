@@ -1,8 +1,6 @@
 import * as grpc from '@grpc/grpc-js';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '@/types/inversify';
-import { UserMapper } from '@/dto/UserMapper';
-import { UserSocketMapper } from '@/dto/UserSocketMapper';
 import {
     IGrpcCall,
     GrpcCallbacks,
@@ -102,10 +100,6 @@ export class UserController {
 
             const patientResponse =
                 await this._userService.getUserDetailsViaSocket(patientId);
-
-            // const userData = new UserSocketMapper(
-            //     patientResponse
-            // ).toGrpcResponse();
 
             callback(null, patientResponse);
         } catch (error) {

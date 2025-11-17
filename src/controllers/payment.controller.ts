@@ -1,10 +1,8 @@
-import { ServerUnaryCall, sendUnaryData } from '@grpc/grpc-js';
-import * as grpc from '@grpc/grpc-js';
-import { UserResponse, WebhookEventData } from '../entities/user_interface';
+import {  WebhookEventData } from '../entities/user_interface';
 import { IPaymentService } from '../services/interfaces/IPayment.service';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '@/types/inversify';
-import { PaymentEvent, UpdateDoctor } from '@/types';
+import { PaymentEvent } from '@/types';
 import { MESSAGES } from '@/constants/messages.constant';
 
 @injectable()

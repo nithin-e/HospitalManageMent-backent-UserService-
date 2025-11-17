@@ -15,15 +15,14 @@ app.use(morgan('dev'));
 // ✅ Setup CORS
 app.use(
     cors({
-        origin: process.env.CORS_ORIGIN || '*', // e.g. 'http://localhost:3000'
+        origin: process.env.CORS_ORIGIN || '*',
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-        credentials: true, // allow cookies or authorization headers
+        credentials: true,
     })
 );
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // ---------------------- ROUTES ----------------------
 app.use(userRoute);
@@ -32,11 +31,10 @@ app.use(userRoute);
 async function bootstrap() {
     try {
         await connectDB();
-        
-       
+
         await startGrpcServer();
-        
-              await startUserPaymentConsumer();
+
+        await startUserPaymentConsumer();
         console.log('✅ RabbitMQ consumer (payment.user) started');
         app.listen(process.env.PORT!, () => {
             console.log('✅ User-service running on port:', process.env.PORT!);
